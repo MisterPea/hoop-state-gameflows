@@ -1,0 +1,67 @@
+@use "../../styles/mixins" as *;
+
+.gameCard {
+  height: 90px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: 0.625rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background-color 500ms var(--ease-out-expo);
+  // background-color: aqua;
+  @media (hover: hover) {
+    &:hover {
+      background-color: var(--card-hover);
+    }
+  }
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 400;
+  text-align: left;
+  @include tablet-up {
+    font-size: 1.125rem;
+  }
+}
+
+.score {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--card-h4-color);
+  text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  margin-left: 5px;
+  @include tablet-up {
+    font-size: 0.9375rem;
+  }
+}
+
+.gameCardWinner {
+  font-weight: 600;
+}
+
+.gameCardLowerInfoWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  .lowerLabel {
+    opacity: 0.6;
+    flex-shrink: 1;
+    font-weight: 400;
+    font-size: 0.75rem;
+    letter-spacing: -2%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

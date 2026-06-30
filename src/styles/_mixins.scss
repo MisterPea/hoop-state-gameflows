@@ -1,0 +1,17 @@
+@mixin font-face($family, $path, $weight, $style: normal) {
+  @font-face {
+    font-family: $family;
+    src: url($path) format("woff2");
+    font-style: $style;
+    font-weight: $weight;
+    font-display: swap;
+  }
+}
+
+$tablet-breakpoint: 768px;
+
+@mixin tablet-up {
+  @media (min-width: $tablet-breakpoint) {
+    @content;
+  }
+}

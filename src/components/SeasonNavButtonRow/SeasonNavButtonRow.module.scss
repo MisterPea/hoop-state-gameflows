@@ -1,0 +1,39 @@
+@use "../../styles/mixins" as *;
+
+.seasonRowNav {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  position: sticky;
+  top: var(--header-height-expanded);
+  z-index: 999;
+  background: linear-gradient(180deg, var(--background) 0%, var(--background) 43%, var(--background-transparent) 100%);
+  animation: nav-top-adjust linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px var(--scroll-shrink-range);
+  padding: 10px 0 15px;
+  backdrop-filter: blur(10px);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@keyframes nav-top-adjust {
+  from {
+    top: var(--header-height-expanded);
+  }
+  to {
+    top: var(--header-height-compact);
+  }
+}
+
+.seasonListWrapper {
+  display: flex;
+  gap: 20px;
+  li {
+    padding: 5px 0;
+  }
+}

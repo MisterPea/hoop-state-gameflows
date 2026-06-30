@@ -1,0 +1,72 @@
+.header {
+  display: flex;
+  padding: 10px 0 25px;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  &::before {
+    position: absolute;
+    inset: 0;
+    content: '';
+    background-color: var(--background);
+    z-index: -1;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 100;
+    color: var(--foreground);
+  }
+  h2 {
+    text-transform: uppercase;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    color: var(--blue-accent);
+  }
+}
+
+.mainPage {
+  justify-content: center;
+  animation: header-shrink linear both;
+  animation-timeline: scroll(root);
+  animation-range: 0px var(--scroll-shrink-range);
+
+  h1 {
+    font-size: 1.875rem;
+    height: 2rem;
+    animation: h1-shrink linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0px var(--scroll-shrink-range);
+  }
+  h2 {
+    font-size: 0.75rem;
+    animation: h2-shrink linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0px var(--scroll-shrink-range);
+  }
+}
+
+.gamePage {
+  justify-content: flex-start;
+  h1 {
+    font-size: 1.1875rem;
+    height: 1.2rem;
+  }
+  h2 {
+    font-size: 0.6rem;
+  }
+}
+
+@keyframes header-shrink {
+  to { padding: 4px 0 4px; }
+}
+
+@keyframes h1-shrink {
+  to {
+    font-size: 1.1875rem;
+    height: 1.2rem;
+  }
+}
+
+@keyframes h2-shrink {
+  to { font-size: 0.6rem; }
+}

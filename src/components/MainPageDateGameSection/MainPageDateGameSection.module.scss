@@ -1,0 +1,30 @@
+@use "../../styles/mixins" as *;
+
+.gameDateSection {
+  margin: 10px 0;
+  padding: clamp(0px, 1vw, 10px);
+  background-color: var(--season-not-selected-background);
+  border-radius: 10px;
+  &:last-child {
+    margin-bottom: unset;
+  }
+  .dateTitle {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--season-date-title);
+    margin: 0 1px 5px;
+  }
+}
+
+.gameDateSectionUl {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0px, 1vw, 10px);
+  @include tablet-up {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.gameDateSectionLi {
+  min-width: 0;
+}

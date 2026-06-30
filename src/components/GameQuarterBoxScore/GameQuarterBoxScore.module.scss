@@ -1,0 +1,31 @@
+.boxScoreWrap {
+  h3 {
+    margin: 10px 0;
+    font-weight: 500;
+  }
+}
+.boxScore {
+  background-color: var(--foreground);
+  font-size: 1rem;
+}
+.gridMain {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 1px;
+  border: 1px solid var(--foreground);
+  span {
+    padding: 10px 0;
+    text-align: center;
+  }
+}
+.gridCellTitle {
+  font-weight: 700;
+  background-color: var(--foreground-50);
+  color: var(--background);
+}
+.gridCellValue {
+  font-weight: 500;
+  font-size: 1.125rem;
+  background-color: var(--background);
+}

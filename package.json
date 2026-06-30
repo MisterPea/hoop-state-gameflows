@@ -1,0 +1,42 @@
+{
+  "name": "nba-game-flow",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "24.x",
+    "npm": "11.x"
+  },
+  "scripts": {
+    "check:node": "node ./scripts/check-node-version.mjs",
+    "predev": "node ./scripts/check-node-version.mjs",
+    "preinstall": "node ./scripts/check-node-version.mjs",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check",
+    "format": "biome format --write",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@misterpea/sqlite-worker-db": "^0.1.5",
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@storybook/nextjs-vite": "^10.4.6",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "sass": "^1.101.0",
+    "storybook": "^10.4.6",
+    "typescript": "^5",
+    "vite": "^8.0.16"
+  },
+  "overrides": {
+    "postcss": ">=8.5.10"
+  }
+}

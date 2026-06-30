@@ -1,0 +1,10 @@
+.gameSectionDivider {
+  h2 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--game-section-divider-foreground);
+    background-color: var(--game-section-divider-background);
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+}

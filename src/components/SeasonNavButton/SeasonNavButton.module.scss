@@ -1,0 +1,13 @@
+.sectionSelector {
+  white-space: nowrap;
+  font-size: 0.9376rem;
+  padding: 5px 10px;
+  font-weight: 500;
+  background-color: var(--season-not-selected-background);
+  color: var(--season-not-selected-foreground);
+  &.sectionIsSelected {
+    background-color: var(--season-selected-background);
+    color: var(--season-selected-foreground);
+    pointer-events: none;
+  }
+}
