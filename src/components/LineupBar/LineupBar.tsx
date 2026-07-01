@@ -21,6 +21,12 @@ function intervalColor( value: number, min: number, max: number ): string {
   return `hsl(${52 + 52 * t}, 70%, 49%)`;
 }
 
+function formatClock( seconds: number ): string {
+  const m = Math.floor( seconds / 60 );
+  const s = Math.floor( seconds % 60 );
+  return `${m}:${s.toString().padStart( 2, "0" )}`;
+}
+
 export default function LineupBar( { intervals, overtimes }: LineupBarProps ) {
   const values = intervals.map( i => i.plusMinus );
   const min = Math.min( ...values, 0 );
@@ -46,6 +52,16 @@ export default function LineupBar( { intervals, overtimes }: LineupBarProps ) {
             <span className={styles.intervalLabel}>
               {interval.plusMinus > 0 ? `+${interval.plusMinus}` : interval.plusMinus}
             </span>
+            <div className={styles.tooltip}>
+              <div className={styles.tooltipTime}>
+                {formatClock( interval.entrySeconds )} – {formatClock( interval.exitSeconds )}
+              </div>
+              <ul className={styles.tooltipLineup}>
+                {interval.lineup.map( player => (
+                  <li key={player.personId}>{player.playerName}</li>
+                ) )}
+              </ul>
+            </div>
           </div>
         ) )}
       </div>

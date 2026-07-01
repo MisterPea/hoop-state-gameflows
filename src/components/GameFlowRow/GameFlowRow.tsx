@@ -11,6 +11,7 @@ type GameFlowRowProps = {
   plusMinus: number;
   overtimes: number;
   teamColor: string;
+  teamColorAccent: string;
 };
 
 const REGULAR_PERIODS = [1, 2, 3, 4];
@@ -20,19 +21,21 @@ function periodDuration( period: number ) {
 }
 
 export default function GameFlowRow( props: GameFlowRowProps ) {
-  const { segments, player, minutes, points, rebounds, assists, plusMinus, overtimes, teamColor } = props;
+  const { segments, player, minutes, points, rebounds, assists, plusMinus, overtimes, teamColor, teamColorAccent } = props;
 
   const overtimePeriods = Array.from( { length: overtimes }, ( _, i ) => i + 5 );
 
   function renderPeriod( period: number ) {
     const dur = periodDuration( period );
     const periodSegs = segments.filter( s => s.period === period );
+
     return (
-      <div 
+      <div
         key={period}
         className={period <= 4 ? styles.regularPeriod : styles.overtimePeriod}
       >
         {periodSegs.map( ( seg, i ) => (
+
           <div
             key={i}
             className={styles.segment}
@@ -40,6 +43,7 @@ export default function GameFlowRow( props: GameFlowRowProps ) {
               left: `${( ( dur - seg.entrySeconds ) / dur ) * 100}%`,
               width: `${( ( seg.entrySeconds - seg.exitSeconds ) / dur ) * 100}%`,
               backgroundColor: teamColor,
+              borderBottom: `1.5px solid ${teamColorAccent}`
             }}
           />
         ) )}

@@ -49,8 +49,8 @@
   text-align: center;
   font-weight: 500;
   font-size: 0.75rem;
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
   height: 20px;
   position: relative;
   background-color: color-mix(in srgb, var(--foreground) 50%, transparent);
@@ -59,11 +59,20 @@
     content: "";
     inset: 0;
     position: absolute;
-    border: 0.5px solid var(--foreground);
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+    border-top: 0.5px solid var(--foreground);
   }
 }
+
+.gameFlowRow:last-child {
+  .gameFlowStats::before {
+    content: "";
+    inset: 0;
+    position: absolute;
+    border-top: 0.5px solid var(--foreground);
+    border-bottom: 0.5px solid var(--foreground);
+  }
+}
+
 .statElement {
   display: flex;
   flex-direction: column;
@@ -72,5 +81,3 @@
   background-color: var(--background);
   height: 100%;
 }
-
-

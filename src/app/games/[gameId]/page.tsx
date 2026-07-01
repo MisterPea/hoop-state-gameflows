@@ -7,10 +7,14 @@ import {
   getOfficials,
   getPlayerRotations,
   getRecentGameActions,
+  getScoreMargin,
+  getTeamAccentColor,
   getTeamColor,
+  getTeamName,
 } from "@/lib/nba-data";
 import GameFlowRow from "@/components/GameFlowRow/GameFlowRow";
 import LineupBar from "@/components/LineupBar/LineupBar";
+import ScoreMarginChart from "@/components/ScoreMarginChart/ScoreMarginChart";
 import GamePageTitle from "@/components/GamePageTitle/GamePageTitle";
 import GamePageTitleInfo from "@/components/GamePageTitleInfo/GamePageTitleInfo";
 import GameSectionWrapper from "@/components/GameSectionWrapper/GameSectionWrapper";
@@ -28,17 +32,21 @@ export async function generateStaticParams() {
 
 export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
   const { gameId } = await props.params;
-  const [summary, actions, officials, date, rotations] = await Promise.all( [
+  const [summary, actions, officials, date, rotations, scoreMargin] = await Promise.all( [
     getGameSummary( gameId ),
     getRecentGameActions( gameId ),
     getOfficials( gameId ),
     getDate( gameId ),
     getPlayerRotations( gameId ),
+    getScoreMargin( gameId ),
   ] );
 
   if ( !summary ) {
     notFound();
   }
+
+  const homeTricode = rotations.home[0]?.teamTricode ?? "";
+  const awayTricode = rotations.away[0]?.teamTricode ?? "";
 
   return (
     <main>
@@ -84,10 +92,25 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
                 plusMinus={player.plusMinus}
                 overtimes={rotations.overtimes}
                 teamColor={getTeamColor( player.teamTricode )}
+                teamColorAccent={getTeamAccentColor( player.teamTricode )}
               />
             ) )}
           </div>
           <LineupBar intervals={rotations.awayLineups} overtimes={rotations.overtimes} />
+          <ScoreMarginChart
+            points={scoreMargin.points}
+            overtimes={scoreMargin.overtimes}
+            maxHomeLead={scoreMargin.maxHomeLead}
+            maxAwayLead={scoreMargin.maxAwayLead}
+            homeColor={getTeamColor( homeTricode )}
+            awayColor={getTeamColor( awayTricode )}
+            homeTeam={getTeamName( homeTricode )}
+            awayTeam={getTeamName( awayTricode )}
+            homeTricode={homeTricode}
+            awayTricode={awayTricode}
+            homeScore={summary.homePoints}
+            awayScore={summary.awayPoints}
+          />
           <LineupBar intervals={rotations.homeLineups} overtimes={rotations.overtimes} />
           <div className={styles.homeWrapper}>
             {rotations.home.map( player => (
@@ -102,6 +125,7 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
                 plusMinus={player.plusMinus}
                 overtimes={rotations.overtimes}
                 teamColor={getTeamColor( player.teamTricode )}
+                teamColorAccent={getTeamAccentColor( player.teamTricode )}
               />
             ) )}
           </div>

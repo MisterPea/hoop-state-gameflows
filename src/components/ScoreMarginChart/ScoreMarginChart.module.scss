@@ -1,0 +1,148 @@
+.scoreMarginChart {
+  display: flex;
+  height: 100px;
+  align-items: center;
+  gap: 5px;
+  margin: 5px 0;
+}
+
+.chartSpacer,
+.teamNames {
+  flex: 1;
+}
+
+.teamNames {
+  padding-right: 5px;
+  font-size: 1.125rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.maxLeadsAndScores {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: 100%;
+  justify-content: space-between;
+
+  .leadScoreGroup {
+    padding-left: 5px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .maxLead {
+    font-size: 0.7rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .score {
+    display: grid;
+    width: max-content;
+    font-size: 1.2rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px;
+    h5 {
+      &:last-child {
+        text-align: left;
+      }
+    }
+    &:first-child {
+      margin-bottom: 2px;
+    }
+    &:last-child {
+      margin-top: 2px;
+    }
+  }
+}
+
+.chartPeriods {
+  flex: 4;
+  display: flex;
+  gap: 2px;
+  height: 100%;
+}
+
+.regularPeriod,
+.overtimePeriod {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--score-margin-background);
+  width: 100%;
+  height: 100%;
+  // border: 1px solid var(--foreground);
+  border-top: 0.5px solid var(--foreground);
+  border-bottom: 0.5px solid var(--foreground);
+  &:first-child {
+    border-left: 0.5px solid var(--foreground);
+    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px;
+  }
+  &:last-child {
+    border-right: 0.5px solid var(--foreground);
+    border-bottom-right-radius: 2px;
+    border-top-right-radius: 2px;
+  }
+
+  &:has(.tooltipActive) {
+    overflow: visible;
+  }
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  background-color: var(--card-background);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+
+  &.tooltipActive {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
+  }
+}
+
+.tooltipTime {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--foreground);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.tooltipScore {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.chartSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.centerline {
+  stroke: var(--foreground);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  opacity: 0.4;
+}

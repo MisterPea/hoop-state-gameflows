@@ -12,7 +12,7 @@ export default function GamePageTitle( gameTitleInfo: GamePageTitleProps ) {
 
   return (
     <div className={`${styles.gameTitle}`}>
-      <h1><span className={styles.teamUnit}>{awayTeam} <span className={styles.score}>({awayScore})</span></span>{" at "}<span className={styles.teamUnit}>{homeTeam} <span className={styles.score}>({homeScore})</span></span></h1>
+      <h1><span className={styles.teamUnit}>{awayTeam} <span className={styles.score}>({awayScore})</span></span><span className={styles.atSpan}>{" at "}</span><span className={styles.teamUnit}>{homeTeam} <span className={styles.score}>({homeScore})</span></span></h1>
     </div>
   );
 

@@ -36,6 +36,39 @@ const tricodeToCity: Record<string, string> = {
   WAS: "Washington",
 };
 
+// Tricode - Team name mapping
+const tricodeToTeamName: Record<string, string> = {
+  ATL: "Atlanta Hawks",
+  BOS: "Boston Celtics",
+  BKN: "Brooklyn Nets",
+  CHA: "Charlotte Hornets",
+  CHI: "Chicago Bulls",
+  CLE: "Cleveland Cavaliers",
+  DAL: "Dallas Mavericks",
+  DEN: "Denver Nuggets",
+  DET: "Detroit Pistons",
+  GSW: "Golden State Warriors",
+  HOU: "Houston Rockets",
+  IND: "Indiana Pacers",
+  LAC: "Los Angeles Clippers",
+  LAL: "Los Angeles Lakers",
+  MEM: "Memphis Grizzlies",
+  MIA: "Miami Heat",
+  MIL: "Milwaukee Bucks",
+  MIN: "Minnesota Timberwolves",
+  NOP: "New Orleans Pelicans",
+  NYK: "New York Knicks",
+  OKC: "Oklahoma City Thunder",
+  ORL: "Orlando Magic",
+  PHI: "Philadelphia 76ers",
+  PHX: "Phoenix Suns",
+  POR: "Portland Trail Blazers",
+  SAC: "Sacramento Kings",
+  SAS: "San Antonio Spurs",
+  TOR: "Toronto Raptors",
+  UTA: "Utah Jazz",
+  WAS: "Washington Wizards",
+};
 
 type GameSummaryRow = {
   game_id: string;
@@ -475,11 +508,17 @@ export type PlayerRotation = {
   plusMinus: number;
 };
 
+export type LineupPlayer = {
+  personId: number;
+  playerName: string;
+};
+
 export type LineupInterval = {
   period: number;
   entrySeconds: number;
   exitSeconds: number;
   plusMinus: number;
+  lineup: LineupPlayer[];
 };
 
 export type GameRotations = {
@@ -564,12 +603,17 @@ export function getTeamAccentColor( tricode: string ): string {
   return teamAccentColors[tricode] ?? "#CCCCCC";
 }
 
+export function getTeamName( tricode: string ): string {
+  return tricodeToTeamName[tricode] ?? tricode;
+}
+
 type ParticipantRow = {
   person_id: number;
   name_i: string;
   team_tricode: string;
   home_away: string;
   starter: number;
+  jersey_number: string | null;
   minutes_played: number;
   points: number;
   rebounds_total: number;
@@ -591,20 +635,31 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
   const db = getDb();
 
   const participantRows = ( await db.getAllData(
-    `SELECT person_id, name_i, team_tricode, home_away, starter,
+    `SELECT person_id, name_i, team_tricode, home_away, starter, jersey_number,
             minutes_played, points, rebounds_total, assists, plus_minus
      FROM box_score_participants
      WHERE game_id = ? AND is_official = 0 AND played = 1`,
     [gameId],
   ) ) as ParticipantRow[];
 
+  const nameCounts = new Map<string, number>();
+  for ( const row of participantRows ) {
+    const key = `${row.home_away}:${row.name_i}`;
+    nameCounts.set( key, ( nameCounts.get( key ) ?? 0 ) + 1 );
+  }
+
   const playerMap = new Map<number, PlayerRotation>();
   const starters = new Set<number>();
 
   for ( const row of participantRows ) {
+    const isDuplicateName = ( nameCounts.get( `${row.home_away}:${row.name_i}` ) ?? 0 ) > 1;
+    const playerName = isDuplicateName && row.jersey_number
+      ? `${row.name_i} (#${row.jersey_number})`
+      : row.name_i;
+
     playerMap.set( row.person_id, {
       personId: row.person_id,
-      playerName: row.name_i,
+      playerName,
       teamTricode: row.team_tricode,
       homeAway: row.home_away as "home" | "away",
       segments: [],
@@ -635,7 +690,7 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
   let inPeriod = false;
   let maxPeriod = 4;
 
-  type LineupTracker = { period: number; entrySeconds: number; scoreDiff: number; };
+  type LineupTracker = { period: number; entrySeconds: number; scoreDiff: number; lineup: LineupPlayer[]; };
   let homeLineupTracker: LineupTracker | null = null;
   let awayLineupTracker: LineupTracker | null = null;
   const homeLineups: LineupInterval[] = [];
@@ -645,6 +700,16 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
 
   function periodDuration( period: number ) {
     return period <= 4 ? 720 : 300;
+  }
+
+  function teamRoster( team: "home" | "away" ): LineupPlayer[] {
+    const roster: LineupPlayer[] = [];
+    for ( const id of onCourt ) {
+      if ( personTeam.get( id ) !== team ) continue;
+      const player = playerMap.get( id );
+      if ( player ) roster.push( { personId: id, playerName: player.playerName } );
+    }
+    return roster.sort( ( a, b ) => a.playerName.localeCompare( b.playerName ) );
   }
 
   function closeSegment( personId: number, exitSeconds: number ) {
@@ -664,6 +729,7 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
       entrySeconds: tracker.entrySeconds,
       exitSeconds,
       plusMinus: ( currentDiff - tracker.scoreDiff ) * teamSign,
+      lineup: tracker.lineup,
     } );
   }
 
@@ -686,8 +752,8 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
         segmentStart.set( id, { period, clock: dur } );
       }
       const scoreDiff = lastScoreHome - lastScoreAway;
-      homeLineupTracker = { period, entrySeconds: dur, scoreDiff };
-      awayLineupTracker = { period, entrySeconds: dur, scoreDiff };
+      homeLineupTracker = { period, entrySeconds: dur, scoreDiff, lineup: teamRoster( "home" ) };
+      awayLineupTracker = { period, entrySeconds: dur, scoreDiff, lineup: teamRoster( "away" ) };
     } else if ( type === "period" && subType === "end" ) {
       inPeriod = false;
       for ( const id of onCourt ) closeSegment( id, 0 );
@@ -700,22 +766,32 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
       if ( homeLineupTracker ) { closeLineup( homeLineupTracker, homeLineups, 0, scoreDiff, 1 ); homeLineupTracker = null; }
       if ( awayLineupTracker ) { closeLineup( awayLineupTracker, awayLineups, 0, scoreDiff, -1 ); awayLineupTracker = null; }
     } else if ( type === "substitution" && subType === "out" && personId != null ) {
+      const team = personTeam.get( personId );
       if ( inPeriod ) {
         closeSegment( personId, clock );
         const scoreDiff = lastScoreHome - lastScoreAway;
-        const team = personTeam.get( personId );
+        onCourt.delete( personId );
         if ( team === "home" && homeLineupTracker ) {
           closeLineup( homeLineupTracker, homeLineups, clock, scoreDiff, 1 );
-          homeLineupTracker = { period, entrySeconds: clock, scoreDiff };
+          homeLineupTracker = { period, entrySeconds: clock, scoreDiff, lineup: teamRoster( "home" ) };
         } else if ( team === "away" && awayLineupTracker ) {
           closeLineup( awayLineupTracker, awayLineups, clock, scoreDiff, -1 );
-          awayLineupTracker = { period, entrySeconds: clock, scoreDiff };
+          awayLineupTracker = { period, entrySeconds: clock, scoreDiff, lineup: teamRoster( "away" ) };
         }
+      } else {
+        onCourt.delete( personId );
       }
-      onCourt.delete( personId );
     } else if ( type === "substitution" && subType === "in" && personId != null ) {
       onCourt.add( personId );
-      if ( inPeriod ) segmentStart.set( personId, { period, clock } );
+      if ( inPeriod ) {
+        segmentStart.set( personId, { period, clock } );
+        const team = personTeam.get( personId );
+        if ( team === "home" && homeLineupTracker ) {
+          homeLineupTracker.lineup = teamRoster( "home" );
+        } else if ( team === "away" && awayLineupTracker ) {
+          awayLineupTracker.lineup = teamRoster( "away" );
+        }
+      }
     }
   }
 
@@ -730,4 +806,78 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
   const away = [...playerMap.values()].filter( p => p.homeAway === "away" ).sort( sortPlayers );
 
   return { home, away, homeLineups, awayLineups, overtimes };
+}
+
+export type ScoreMarginPoint = {
+  period: number;
+  clockSeconds: number;
+  margin: number; // home points minus away points
+  homeScore: number;
+  awayScore: number;
+};
+
+export type GameScoreMargin = {
+  points: ScoreMarginPoint[];
+  overtimes: number;
+  maxHomeLead: number;
+  maxAwayLead: number;
+};
+
+export function getMaxHomeLead( points: ScoreMarginPoint[] ): number {
+  return points.reduce( ( max, p ) => Math.max( max, p.margin ), 0 );
+}
+
+export function getMaxAwayLead( points: ScoreMarginPoint[] ): number {
+  return points.reduce( ( max, p ) => Math.max( max, -p.margin ), 0 );
+}
+
+type ScoreEventRow = {
+  action_type: string;
+  action_sub_type: string | null;
+  clock: number | null;
+  period: number;
+  score_home: number | null;
+  score_away: number | null;
+};
+
+export async function getScoreMargin( gameId: string ): Promise<GameScoreMargin> {
+  const db = getDb();
+
+  function periodDuration( period: number ) {
+    return period <= 4 ? 720 : 300;
+  }
+
+  const rows = ( await db.getAllData(
+    `SELECT action_type, action_sub_type, clock, period, score_home, score_away
+     FROM game_actions
+     WHERE game_id = ?
+     ORDER BY order_number ASC`,
+    [gameId],
+  ) ) as ScoreEventRow[];
+
+  let cumHome = 0;
+  let cumAway = 0;
+  let maxPeriod = 4;
+  const points: ScoreMarginPoint[] = [];
+
+  for ( const row of rows ) {
+    if ( row.score_home != null ) cumHome = row.score_home;
+    if ( row.score_away != null ) cumAway = row.score_away;
+
+    if ( row.action_type === "period" && row.action_sub_type === "start" ) {
+      if ( row.period > maxPeriod ) maxPeriod = row.period;
+      points.push( { period: row.period, clockSeconds: periodDuration( row.period ), margin: cumHome - cumAway, homeScore: cumHome, awayScore: cumAway } );
+    } else if ( row.action_type === "period" && row.action_sub_type === "end" ) {
+      points.push( { period: row.period, clockSeconds: 0, margin: cumHome - cumAway, homeScore: cumHome, awayScore: cumAway } );
+    } else if ( row.score_home != null || row.score_away != null ) {
+      points.push( { period: row.period, clockSeconds: row.clock ?? 0, margin: cumHome - cumAway, homeScore: cumHome, awayScore: cumAway } );
+    }
+  }
+
+  return {
+    points,
+    overtimes: Math.max( 0, maxPeriod - 4 ),
+    maxHomeLead: getMaxHomeLead( points ),
+    maxAwayLead: getMaxAwayLead( points ),
+  };
 }
