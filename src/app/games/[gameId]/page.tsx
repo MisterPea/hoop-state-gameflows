@@ -5,8 +5,12 @@ import {
   getDate,
   getGameSummary,
   getOfficials,
+  getPlayerRotations,
   getRecentGameActions,
+  getTeamColor,
 } from "@/lib/nba-data";
+import GameFlowRow from "@/components/GameFlowRow/GameFlowRow";
+import LineupBar from "@/components/LineupBar/LineupBar";
 import GamePageTitle from "@/components/GamePageTitle/GamePageTitle";
 import GamePageTitleInfo from "@/components/GamePageTitleInfo/GamePageTitleInfo";
 import GameSectionWrapper from "@/components/GameSectionWrapper/GameSectionWrapper";
@@ -22,36 +26,14 @@ export async function generateStaticParams() {
   } ) );
 }
 
-// function formatTimestamp(value: string | null) {
-//   if (!value) {
-//     return "Unknown";
-//   }
-
-//   return new Intl.DateTimeFormat("en-US", {
-//     dateStyle: "full",
-//     timeStyle: "short",
-//   }).format(new Date(value));
-// }
-
-// function formatClock(clock: number | null) {
-//   if (clock === null || Number.isNaN(clock)) {
-//     return "--:--";
-//   }
-
-//   const totalSeconds = Math.max(clock, 0);
-//   const minutes = Math.floor(totalSeconds / 60);
-//   const seconds = totalSeconds % 60;
-
-//   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-// }
-
 export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
   const { gameId } = await props.params;
-  const [summary, actions, officials, date] = await Promise.all( [
+  const [summary, actions, officials, date, rotations] = await Promise.all( [
     getGameSummary( gameId ),
     getRecentGameActions( gameId ),
     getOfficials( gameId ),
-    getDate( gameId )
+    getDate( gameId ),
+    getPlayerRotations( gameId ),
   ] );
 
   if ( !summary ) {
@@ -88,37 +70,43 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
             />
           </div>
         </header>
-        <GameSectionWrapper title="Game Flow"><p>fff</p></GameSectionWrapper>
-        <section>
-          <h2>Recent Actions</h2>
-          <ul
-            style={{
-              display: "grid",
-              gap: "0.75rem",
-              listStyle: "none",
-              padding: 0,
-            }}
-          >
-            {actions.map( ( action ) => (
-              <li
-                key={action.actionNumber}
-                style={{
-                  background: "rgba(255, 255, 255, 0.7)",
-                  borderRadius: "12px",
-                  padding: "0.75rem 1rem",
-                }}
-              >
-
-                <p>{action.playDescription ?? action.actionType}</p>
-                <p>
-                  {action.scoreAway !== null && action.scoreHome !== null
-                    ? `${action.scoreAway} - ${action.scoreHome}`
-                    : "Score unavailable"}
-                </p>
-              </li>
+        <GameSectionWrapper title="Game Flow" className={styles.sectionWrapper}>
+          <div className={styles.awayWrapper}>
+            {rotations.away.map( player => (
+              <GameFlowRow
+                key={player.personId}
+                segments={player.segments}
+                player={player.playerName}
+                minutes={player.minutesPlayed}
+                points={player.points}
+                rebounds={player.rebounds}
+                assists={player.assists}
+                plusMinus={player.plusMinus}
+                overtimes={rotations.overtimes}
+                teamColor={getTeamColor( player.teamTricode )}
+              />
             ) )}
-          </ul>
-        </section>
+          </div>
+          <LineupBar intervals={rotations.awayLineups} overtimes={rotations.overtimes} />
+          <LineupBar intervals={rotations.homeLineups} overtimes={rotations.overtimes} />
+          <div className={styles.homeWrapper}>
+            {rotations.home.map( player => (
+              <GameFlowRow
+                key={player.personId}
+                segments={player.segments}
+                player={player.playerName}
+                minutes={player.minutesPlayed}
+                points={player.points}
+                rebounds={player.rebounds}
+                assists={player.assists}
+                plusMinus={player.plusMinus}
+                overtimes={rotations.overtimes}
+                teamColor={getTeamColor( player.teamTricode )}
+              />
+            ) )}
+          </div>
+        </GameSectionWrapper>
+
       </section>
     </main>
   );
