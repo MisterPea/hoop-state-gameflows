@@ -1,9 +1,14 @@
+@use "../../styles/mixins" as *;
+
 .gameFlowRow {
   display: flex;
   height: 20px;
-  align-items: center;
-  gap: 5px;
   margin: 1px 0;
+  align-items: center;
+  gap: 2px;
+  @include tablet-up {
+    gap: 5px;
+  }
 }
 
 .gameFlowPlayer,
@@ -14,12 +19,18 @@
 .gameFlowPlayer {
   text-align: right;
   font-weight: 500;
-  font-size: 0.8rem;
   height: 100%;
   display: flex;
   align-items: center;
-  padding-right: 5px;
   justify-content: flex-end;
+  font-size: clamp(0.5rem, 1.75vw, 1rem);
+  letter-spacing: -2%;
+  line-height: 0.5rem;
+  padding-right: 0;
+  @include tablet-up {
+    font-size: 0.8rem;
+    padding-right: 5px;
+  }
 }
 
 .gameFlowPeriods {
@@ -48,13 +59,16 @@
   grid-template-columns: repeat(5, 1fr);
   text-align: center;
   font-weight: 500;
-  font-size: 0.75rem;
   border-top-right-radius: 2px;
   border-bottom-right-radius: 2px;
   height: 20px;
   position: relative;
   background-color: color-mix(in srgb, var(--foreground) 50%, transparent);
+  font-size: clamp(0.3rem, 1.55cqw, 0.75rem);
   column-gap: 0.5px;
+  @include tablet-up {
+    font-size: 0.75rem;
+  }
   &::before {
     content: "";
     inset: 0;

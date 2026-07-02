@@ -57,6 +57,13 @@ const meta = {
     homeScore: closeGamePoints[closeGamePoints.length - 1].homeScore,
     awayScore: closeGamePoints[closeGamePoints.length - 1].awayScore,
   },
+  decorators: [
+    ( Story ) => (
+      <div style={{ padding: "50px 20px 20px" }}>
+        <Story />
+      </div>
+    ),
+  ],
 } satisfies Meta<typeof ScoreMarginChart>;
 
 export default meta;

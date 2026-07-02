@@ -22,6 +22,13 @@ const meta = {
   title: "Components/LineupBar",
   component: LineupBar,
   tags: ["autodocs"],
+  decorators: [
+    (Story) => (
+      <div style={{ padding: "100px 20px 20px" }}>
+        <Story />
+      </div>
+    ),
+  ],
   args: {
     overtimes: 0,
     intervals: [

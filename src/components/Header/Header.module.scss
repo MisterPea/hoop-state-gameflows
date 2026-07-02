@@ -7,7 +7,7 @@
   &::before {
     position: absolute;
     inset: 0;
-    content: '';
+    content: "";
     background-color: var(--background);
     z-index: -1;
   }
@@ -15,6 +15,7 @@
     font-family: var(--font-display);
     font-weight: 100;
     color: var(--foreground);
+    display: inline;
   }
   h2 {
     text-transform: uppercase;
@@ -42,6 +43,7 @@
     animation: h2-shrink linear both;
     animation-timeline: scroll(root);
     animation-range: 0px var(--scroll-shrink-range);
+    margin-top: -0.25rem;
   }
 }
 
@@ -53,11 +55,14 @@
   }
   h2 {
     font-size: 0.6rem;
+     margin-top: -0.25rem;
   }
 }
 
 @keyframes header-shrink {
-  to { padding: 4px 0 4px; }
+  to {
+    padding: 4px 0 4px;
+  }
 }
 
 @keyframes h1-shrink {
@@ -68,5 +73,7 @@
 }
 
 @keyframes h2-shrink {
-  to { font-size: 0.6rem; }
+  to {
+    font-size: 0.6rem;
+  }
 }

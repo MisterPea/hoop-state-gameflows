@@ -1,14 +1,30 @@
+@use "../../styles/mixins" as *;
+
 .infoTitle {
   h3 {
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: clamp(0.65rem, 2cqw, 0.75rem);
     font-weight: 700;
     color: var(--game-info-title);
+    @include tablet-up {
+      font-size: 0.75rem;
+    }
+  }
+  p {
+    font-size: clamp(0.8rem, 3.5cqw, 1.125rem);
+    @include tablet-up {
+      font-size: 1.125rem;
+    }
   }
   ul {
     display: flex;
-    gap: 20px;
+    gap: clamp(1.25rem, 4cqw, 2rem);
+    font-size: clamp(0.8rem, 3.5cqw, 1.125rem);
+    @include tablet-up {
+      font-size: 1.125rem;
+    }
     li {
+      // If 4th / alt official
       &:nth-child(4) {
         opacity: 0.5;
       }

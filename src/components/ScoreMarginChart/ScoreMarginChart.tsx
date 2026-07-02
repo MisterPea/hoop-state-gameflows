@@ -153,6 +153,7 @@ export default function ScoreMarginChart( props: ScoreMarginChartProps ) {
             strokeWidth={1.5}
             vectorEffect="non-scaling-stroke"
             clipPath={`url(#${awayClip})`}
+            className={styles.scoreLine}
           />
           <polyline
             points={step}
@@ -161,6 +162,7 @@ export default function ScoreMarginChart( props: ScoreMarginChartProps ) {
             strokeWidth={1.5}
             vectorEffect="non-scaling-stroke"
             clipPath={`url(#${homeClip})`}
+            className={styles.scoreLine}
           />
         </svg>
         <div ref={el => { tooltipEl = el; }} className={styles.tooltip}>

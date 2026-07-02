@@ -130,7 +130,10 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
             ) )}
           </div>
         </GameSectionWrapper>
+        <GameSectionWrapper title="Box Scores">
 
+          <p>dd</p>
+        </GameSectionWrapper>
       </section>
     </main>
   );
