@@ -1,26 +1,27 @@
 import styles from "./GameCompareAttemptMadeBar.module.scss";
 
 type GameCompareAttemptMadeBarProps = {
-  homeAttempts: number;
-  homeMade: number;
+  awayTricode: string;
   awayAttempts: number;
   awayMade: number;
-  innerChartLabel?: string;
-  includeTotalLabel?: Boolean;
-  includeMadeLabel?: Boolean;
+  homeTricode: string;
+  homeAttempts: number;
+  homeMade: number;
+  chartLabel?: string;
   includePctBadge?: Boolean;
   homeTeamColor?: string;
   awayTeamColor?: string;
 };
 
 export default function GameCompareAttemptMadeBar( props: GameCompareAttemptMadeBarProps ) {
-  const { homeAttempts,
-    homeMade,
+  const {
+    awayTricode,
     awayAttempts,
     awayMade,
-    innerChartLabel,
-    includeMadeLabel,
-    includeTotalLabel,
+    homeTricode,
+    homeAttempts,
+    homeMade,
+    chartLabel,
     includePctBadge } = props;
 
   const maxAttempts = Math.max( homeAttempts, awayAttempts );
@@ -32,28 +33,24 @@ export default function GameCompareAttemptMadeBar( props: GameCompareAttemptMade
 
   return (
     <div className={styles.attemptMadeBarWrap}>
-      {innerChartLabel && <h4 className={styles.innerChartLabel}>{innerChartLabel}</h4>}
-      <div className={`${styles.barsWrap} ${includePctBadge ? styles.pctBadgeSpacer: ''}`}>
-        <div className={styles.barRow}>
-          <div className={styles.outerBar} style={{ transform: `scaleX(${awayTotal})` }}>
-            <div className={styles.innerBarMade} style={{ width: `${awayMadePct}%` }}>
-              {includePctBadge && <p style={{ left: `${awayMadePct}%` }} className={styles.midLabelTop}>{`${awayMadePct.toFixed( 0 )}%`}</p>}
-              {includeMadeLabel && <p className={styles.madeLabel}>{awayMade}</p>}
-            </div>
-            <div className={styles.innerBarMiss} style={{ width: `${100 - awayMadePct}%` }}></div>
-          </div>
-          {includeTotalLabel && <p className={styles.totalLabel}>{awayAttempts}</p>}
+      {chartLabel && <h4>{chartLabel}</h4>}
+      <div className={styles.barWrapInfo}>
+        <p className={styles.tricodeText}>{awayTricode}</p>
+        <div style={{ width: `${100 * awayTotal}%` }} className={styles.barWrap}>
+          {includePctBadge && <p className={styles.pctCalloutTop} style={{ left: `${awayMadePct}%` }}>{`${awayMadePct.toFixed( 0 )}%`}</p>}
+          <div style={{ width: `${awayMadePct}%` }} className={styles.barMain}>{awayMade}</div>
+          {awayMadePct < 100 && <div style={{ width: `${100 - awayMadePct}%` }} className={styles.missedBar}></div>}
         </div>
-        <div className={styles.barRow}>
-          <div className={styles.outerBar} style={{ transform: `scaleX(${homeTotal})` }}>
-            <div className={styles.innerBarMade} style={{ width: `${homeMadePct}%` }}>
-              {includeMadeLabel && <p className={styles.madeLabel}>{homeMade}</p>}
-            </div>
-            <div className={styles.innerBarMiss} style={{ width: `${100 - homeMadePct}%` }}></div>
-            {includePctBadge && <p style={{ left: `${homeMadePct}%` }} className={styles.midLabelBottom}>{`${homeMadePct.toFixed( 0 )}%`}</p>}
-          </div>
-          {includeTotalLabel && <p className={styles.totalLabel}>{homeAttempts}</p>}
+        <p className={styles.totalNum}>{awayAttempts}</p>
+
+
+        <p className={styles.tricodeText}>{homeTricode}</p>
+        <div style={{ width: `${100 * homeTotal}%` }} className={styles.barWrap}>
+          {includePctBadge && <p className={styles.pctCalloutBottom} style={{ left: `${homeMadePct}%` }}>{`${homeMadePct.toFixed( 0 )}%`}</p>}
+          <div style={{ width: `${homeMadePct}%` }} className={styles.barMain}>{homeMade}</div>
+          {homeMadePct < 100 && <div style={{ width: `${100 - homeMadePct}%` }} className={styles.missedBar}></div>}
         </div>
+        <p className={styles.totalNum}>{homeAttempts}</p>
       </div>
     </div>
   );

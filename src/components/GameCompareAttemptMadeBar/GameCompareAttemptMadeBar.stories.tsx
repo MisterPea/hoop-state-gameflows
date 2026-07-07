@@ -7,18 +7,16 @@ const meta = {
   component: GameCompareAttemptMadeBar,
   tags: ["autodocs"],
   argTypes: {
-    includeTotalLabel: { control: "boolean" },
-    includeMadeLabel: { control: "boolean" },
     includePctBadge: { control: "boolean" },
   },
   args: {
-    homeAttempts: 88,
-    homeMade: 42,
+    awayTricode: "NYK",
     awayAttempts: 91,
     awayMade: 38,
-    innerChartLabel: undefined,
-    includeTotalLabel: false,
-    includeMadeLabel: false,
+    homeTricode: "BOS",
+    homeAttempts: 88,
+    homeMade: 42,
+    chartLabel: undefined,
     includePctBadge: false,
     homeTeamColor: undefined,
     awayTeamColor: undefined,
@@ -60,9 +58,7 @@ export const EvenSplit: Story = {
 
 export const WithLabels: Story = {
   args: {
-    innerChartLabel: "Field Goals",
-    includeMadeLabel: true,
-    includeTotalLabel: true,
+    chartLabel: "Field Goals",
     includePctBadge: true,
   },
 };
