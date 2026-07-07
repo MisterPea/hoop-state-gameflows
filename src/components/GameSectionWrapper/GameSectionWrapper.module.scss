@@ -1,13 +1,15 @@
 .gameSectionDivider {
   h2 {
-    font-size: 0.875rem;
+    font-size: 1rem;
     // font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--game-section-divider-foreground);
+    font-weight: 500;
+    // color: var(--game-section-divider-foreground);
+    color: var(--foreground);
     // background-color: var(--game-section-divider-background);
-    background-color: var(--foreground);
-    padding: 5px;
-    padding-left: 8px;
+    // background-color: var(--foreground);
+    // border-left: 1px solid color-mix(in srgb, var(--foreground) 40%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--foreground) 40%, transparent);
+    padding: 5px 0;
     margin: 30px 0;
   }
 }

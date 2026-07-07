@@ -10,7 +10,7 @@
     "check:node": "node ./scripts/check-node-version.mjs",
     "predev": "node ./scripts/check-node-version.mjs",
     "preinstall": "node ./scripts/check-node-version.mjs",
-    "dev": "next dev",
+    "dev": "next dev", 
     "build": "next build",
     "start": "next start",
     "lint": "biome check",

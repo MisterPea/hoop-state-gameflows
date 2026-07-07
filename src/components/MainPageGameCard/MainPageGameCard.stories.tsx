@@ -54,10 +54,12 @@ export const PlayIn: Story = {
   args: {
     awayPoints: 114,
     awayTeam: 'Portland',
+    awaySeed: 8,
     gameDate: '2026-04-14',
     gameId: '0052500121',
     homePoints: 110,
     homeTeam: 'Phoenix',
+    homeSeed: 7,
     gameLabel: 'SoFi Play-In Tournament',
     gameSubLabel: 'West'
   }

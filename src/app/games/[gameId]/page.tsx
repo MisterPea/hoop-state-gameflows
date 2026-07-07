@@ -18,6 +18,7 @@ import ScoreMarginChart from "@/components/ScoreMarginChart/ScoreMarginChart";
 import GamePageTitle from "@/components/GamePageTitle/GamePageTitle";
 import GamePageTitleInfo from "@/components/GamePageTitleInfo/GamePageTitleInfo";
 import GameSectionWrapper from "@/components/GameSectionWrapper/GameSectionWrapper";
+import { formatGameDate } from "@/lib/format-date";
 
 export const runtime = "nodejs";
 export const dynamicParams = false;
@@ -61,7 +62,7 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
           <div className={styles.dateGameIdRow}>
             <GamePageTitleInfo
               title="Date:"
-              data={date}
+              data={formatGameDate(date)}
             />
             <GamePageTitleInfo
               title="Game Id:"
@@ -78,6 +79,9 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
             />
           </div>
         </header>
+         <GameSectionWrapper title="By The Numbers" className={styles.sectionWrapper}>
+          <p>a</p>
+         </GameSectionWrapper>
         <GameSectionWrapper title="Game Flow" className={styles.sectionWrapper}>
           <div className={styles.awayWrapper}>
             {rotations.away.map( player => (

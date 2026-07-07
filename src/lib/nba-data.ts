@@ -70,6 +70,40 @@ const tricodeToTeamName: Record<string, string> = {
   WAS: "Washington Wizards",
 };
 
+// Tricode - Team (nickname only) mapping
+const tricodeToTeam: Record<string, string> = {
+  ATL: "Hawks",
+  BOS: "Celtics",
+  BKN: "Nets",
+  CHA: "Hornets",
+  CHI: "Bulls",
+  CLE: "Cavaliers",
+  DAL: "Mavericks",
+  DEN: "Nuggets",
+  DET: "Pistons",
+  GSW: "Warriors",
+  HOU: "Rockets",
+  IND: "Pacers",
+  LAC: "Clippers",
+  LAL: "Lakers",
+  MEM: "Grizzlies",
+  MIA: "Heat",
+  MIL: "Bucks",
+  MIN: "Timberwolves",
+  NOP: "Pelicans",
+  NYK: "Knicks",
+  OKC: "Thunder",
+  ORL: "Magic",
+  PHI: "76ers",
+  PHX: "Suns",
+  POR: "Trail Blazers",
+  SAC: "Kings",
+  SAS: "Spurs",
+  TOR: "Raptors",
+  UTA: "Jazz",
+  WAS: "Wizards",
+};
+
 type GameSummaryRow = {
   game_id: string;
   home_team: string;
@@ -95,10 +129,12 @@ type GameActionRow = {
 type SeasonGameSummaryRow = {
   away_points: number;
   away_team: string;
+  away_seed: number | null;
   game_date: string;
   game_id: string;
   home_points: number;
   home_team: string;
+  home_seed: number | null;
   game_label: string;
   game_sub_label: string;
 };
@@ -350,10 +386,12 @@ export async function getSeasonSegment( segment: string ) {
 export type ConsolidatedGameSummary = {
   awayPoints: number;
   awayTeam: string;
+  awaySeed: number | null;
   gameDate: string; // or DateString, see below
   gameId: string;
   homePoints: number;
   homeTeam: string;
+  homeSeed: number | null;
   gameLabel: string | null;
   gameSubLabel: string | null;
 };
@@ -380,6 +418,8 @@ export async function getGamesForSeasonSegment( segment: string ): Promise<Recor
         g.game_date,
         g.game_label,
         g.game_sub_label,
+        g.home_seed,
+        g.away_seed,
         MAX(CASE WHEN gs.home_away = 'home' THEN gs.team_tricode END) AS home_team,
         MAX(CASE WHEN gs.home_away = 'away' THEN gs.team_tricode END) AS away_team,
         MAX(CASE WHEN gs.home_away = 'home' THEN gs.points END) AS home_points,
@@ -401,11 +441,13 @@ export async function getGamesForSeasonSegment( segment: string ): Promise<Recor
     const d = gameRowObject[row.game_date];
     const currGame = {
       awayPoints: row.away_points,
-      awayTeam: tricodeToCity[row.away_team],
+      awayTeam: tricodeToTeam[row.away_team],
+      awaySeed: row.away_seed || null,
       gameDate: row.game_date,
       gameId: row.game_id,
       homePoints: row.home_points,
-      homeTeam: tricodeToCity[row.home_team],
+      homeTeam: tricodeToTeam[row.home_team],
+      homeSeed: row.home_seed || null,
       gameLabel: row.game_label || null,
       gameSubLabel: row.game_sub_label || null
     };

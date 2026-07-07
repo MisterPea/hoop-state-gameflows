@@ -1,24 +1,27 @@
 @use "../../styles/mixins" as *;
 
 .gameCard {
-  height: 90px;
+  // height: 90px;
   width: 100%;
   min-width: 0;
-  padding: 10px;
   background-color: var(--card-background);
   border: 1px solid var(--card-border);
-  border-radius: 0.625rem;
+  border-radius: 4px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   font-family: var(--font-sans);
   cursor: pointer;
-  transition: background-color 500ms var(--ease-out-expo);
+  transition: background-color 280ms var(--ease-out-expo);
+  padding: clamp(5px, 1cqw, 10px);
   // background-color: aqua;
   @media (hover: hover) {
     &:hover {
       background-color: var(--card-hover);
     }
+  }
+  @include tablet-up {
+    padding: 10px 12px;
   }
 }
 
@@ -63,5 +66,85 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+}
+
+.teamCard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  gap: 10px;
+}
+.teamHolder {
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(0.76rem, 3cqw, 0.8rem);
+  text-align: left;
+  gap: 2px;
+  h3,
+  h4 {
+    font-weight: 400;
+    opacity: 0.8;
+  }
+  @include tablet-up {
+    font-size: 0.9rem;
+  }
+}
+
+.teamRow {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  .teamName {
+    width: fit-content;
+  }
+}
+
+.teamPoints {
+  justify-self: flex-end;
+  display: flex;
+  align-items: center;
+}
+
+.gameWinner {
+  h3,
+  h4 {
+    font-weight: 600;
+    opacity: 1;
+  }
+  .winArrow {
+    opacity: 0.8;
+  }
+}
+
+.winArrow {
+  font-size: 0.65rem;
+  margin-left: 2px;
+  opacity: 0;
+}
+
+.seeding {
+  font-weight: 300;
+  opacity: 0.8;
+  font-size: clamp(0.5rem, 2.5cqw, 0.8rem);
+  @include tablet-up {
+    font-size: 0.8rem;
+  }
+}
+
+.lowerLabel {
+  opacity: 0.6;
+  flex-shrink: 1;
+  font-weight: 400;
+  height: clamp(0.7rem, 2.65cqw, 0.8rem);;
+  font-size: clamp(0.6rem, 2.5cqw, 0.75rem);
+  letter-spacing: -2%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  @include tablet-up {
+    font-size: 0.75rem;
   }
 }
