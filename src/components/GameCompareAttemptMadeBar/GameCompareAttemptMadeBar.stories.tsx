@@ -8,6 +8,8 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {
     includePctBadge: { control: "boolean" },
+    includeMadeAmt: { control: "boolean" },
+    includeTotal: { control: "boolean" },
   },
   args: {
     awayTricode: "NYK",
@@ -18,6 +20,8 @@ const meta = {
     homeMade: 42,
     chartLabel: undefined,
     includePctBadge: false,
+    includeMadeAmt: false,
+    includeTotal: true,
     homeTeamColor: undefined,
     awayTeamColor: undefined,
   },
@@ -27,7 +31,16 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    awayAttempts: 1.2666666666,
+    awayMade: 1.2666666666,
+    homeAttempts: 1.416666,
+    homeMade: 1.416666,
+    includeMadeAmt: false,
+    includeTotal: true,
+  }
+};
 
 export const HomeFavored: Story = {
   args: {

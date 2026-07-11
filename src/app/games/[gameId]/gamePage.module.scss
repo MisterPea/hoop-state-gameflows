@@ -10,6 +10,17 @@
   margin-top: 20px;
 }
 
+.byTheNumbersGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  @include tablet-up {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+}
+
 .homeWrapper {
   margin-top: 5px;
 }

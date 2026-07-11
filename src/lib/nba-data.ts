@@ -111,6 +111,40 @@ type GameSummaryRow = {
   home_points: number;
   away_points: number;
   last_action_at: string | null;
+  home_field_goals_attempted: number;
+  home_field_goals_made: number;
+  away_field_goals_attempted: number;
+  away_field_goals_made: number;
+  home_three_pointers_attempted: number;
+  home_three_pointers_made: number;
+  away_three_pointers_attempted: number;
+  away_three_pointers_made: number;
+  home_two_pointers_attempted: number;
+  home_two_pointers_made: number;
+  away_two_pointers_attempted: number;
+  away_two_pointers_made: number;
+  home_free_throws_attempted: number;
+  home_free_throws_made: number;
+  away_free_throws_attempted: number;
+  away_free_throws_made: number;
+  home_fast_break_points_attempted: number;
+  home_fast_break_points_made: number;
+  away_fast_break_points_attempted: number;
+  away_fast_break_points_made: number;
+  home_points_in_the_paint_attempted: number;
+  home_points_in_the_paint_made: number;
+  away_points_in_the_paint_attempted: number;
+  away_points_in_the_paint_made: number;
+  home_second_chance_points_attempted: number;
+  home_second_chance_points_made: number;
+  away_second_chance_points_attempted: number;
+  away_second_chance_points_made: number;
+  home_turnovers: number;
+  home_turnovers_total: number;
+  away_turnovers: number;
+  away_turnovers_total: number;
+  home_assists_turnover_ratio: number;
+  away_assists_turnover_ratio: number;
 };
 
 type GameActionRow = {
@@ -146,6 +180,40 @@ export type GameSummary = {
   homePoints: number;
   awayPoints: number;
   lastActionAt: string | null;
+  homeFieldGoalsAttempted: number;
+  homeFieldGoalsMade: number;
+  awayFieldGoalsAttempted: number;
+  awayFieldGoalsMade: number;
+  homeThreePointersAttempted: number;
+  homeThreePointersMade: number;
+  awayThreePointersAttempted: number;
+  awayThreePointersMade: number;
+  homeTwoPointersAttempted: number;
+  homeTwoPointersMade: number;
+  awayTwoPointersAttempted: number;
+  awayTwoPointersMade: number;
+  homeFreeThrowsAttempted: number;
+  homeFreeThrowsMade: number;
+  awayFreeThrowsAttempted: number;
+  awayFreeThrowsMade: number;
+  homeFastBreakPointsAttempted: number;
+  homeFastBreakPointsMade: number;
+  awayFastBreakPointsAttempted: number;
+  awayFastBreakPointsMade: number;
+  homePointsInThePaintAttempted: number;
+  homePointsInThePaintMade: number;
+  awayPointsInThePaintAttempted: number;
+  awayPointsInThePaintMade: number;
+  homeSecondChancePointsAttempted: number;
+  homeSecondChancePointsMade: number;
+  awaySecondChancePointsAttempted: number;
+  awaySecondChancePointsMade: number;
+  homeTurnovers: number;
+  homeTurnoversTotal: number;
+  awayTurnovers: number;
+  awayTurnoversTotal: number;
+  homeAssistsTurnoverRatio: number;
+  awayAssistsTurnoverRatio: number;
 };
 
 export type GameAction = {
@@ -220,6 +288,40 @@ function mapGameSummary( row: GameSummaryRow ): GameSummary {
     homePoints: row.home_points,
     awayPoints: row.away_points,
     lastActionAt: row.last_action_at,
+    homeFieldGoalsAttempted: row.home_field_goals_attempted,
+    homeFieldGoalsMade: row.home_field_goals_made,
+    awayFieldGoalsAttempted: row.away_field_goals_attempted,
+    awayFieldGoalsMade: row.away_field_goals_made,
+    homeThreePointersAttempted: row.home_three_pointers_attempted,
+    homeThreePointersMade: row.home_three_pointers_made,
+    awayThreePointersAttempted: row.away_three_pointers_attempted,
+    awayThreePointersMade: row.away_three_pointers_made,
+    homeTwoPointersAttempted: row.home_two_pointers_attempted,
+    homeTwoPointersMade: row.home_two_pointers_made,
+    awayTwoPointersAttempted: row.away_two_pointers_attempted,
+    awayTwoPointersMade: row.away_two_pointers_made,
+    homeFreeThrowsAttempted: row.home_free_throws_attempted,
+    homeFreeThrowsMade: row.home_free_throws_made,
+    awayFreeThrowsAttempted: row.away_free_throws_attempted,
+    awayFreeThrowsMade: row.away_free_throws_made,
+    homeFastBreakPointsAttempted: row.home_fast_break_points_attempted,
+    homeFastBreakPointsMade: row.home_fast_break_points_made,
+    awayFastBreakPointsAttempted: row.away_fast_break_points_attempted,
+    awayFastBreakPointsMade: row.away_fast_break_points_made,
+    homePointsInThePaintAttempted: row.home_points_in_the_paint_attempted,
+    homePointsInThePaintMade: row.home_points_in_the_paint_made,
+    awayPointsInThePaintAttempted: row.away_points_in_the_paint_attempted,
+    awayPointsInThePaintMade: row.away_points_in_the_paint_made,
+    homeSecondChancePointsAttempted: row.home_second_chance_points_attempted,
+    homeSecondChancePointsMade: row.home_second_chance_points_made,
+    awaySecondChancePointsAttempted: row.away_second_chance_points_attempted,
+    awaySecondChancePointsMade: row.away_second_chance_points_made,
+    homeTurnovers: row.home_turnovers,
+    homeTurnoversTotal: row.home_turnovers_total,
+    awayTurnovers: row.away_turnovers,
+    awayTurnoversTotal: row.away_turnovers_total,
+    homeAssistsTurnoverRatio: row.home_assists_turnover_ratio,
+    awayAssistsTurnoverRatio: row.away_assists_turnover_ratio,
   };
 }
 
@@ -286,7 +388,41 @@ export async function getGameSummary( gameId: string ) {
         MAX(CASE WHEN gs.home_away = 'away' THEN gs.team_tricode END) AS away_team,
         MAX(CASE WHEN gs.home_away = 'home' THEN gs.points END) AS home_points,
         MAX(CASE WHEN gs.home_away = 'away' THEN gs.points END) AS away_points,
-        MAX(ga.time_actual) AS last_action_at
+        MAX(ga.time_actual) AS last_action_at,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.field_goals_attempted END) AS home_field_goals_attempted,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.field_goals_made END) AS home_field_goals_made,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.field_goals_attempted END) AS away_field_goals_attempted,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.field_goals_made END) AS away_field_goals_made,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.three_pointers_attempted END) AS home_three_pointers_attempted,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.three_pointers_made END) AS home_three_pointers_made,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.three_pointers_attempted END) AS away_three_pointers_attempted,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.three_pointers_made END) AS away_three_pointers_made,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.two_pointers_attempted END) AS home_two_pointers_attempted,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.two_pointers_made END) AS home_two_pointers_made,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.two_pointers_attempted END) AS away_two_pointers_attempted,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.two_pointers_made END) AS away_two_pointers_made,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.free_throws_attempted END) AS home_free_throws_attempted,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.free_throws_made END) AS home_free_throws_made,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.free_throws_attempted END) AS away_free_throws_attempted,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.free_throws_made END) AS away_free_throws_made,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.fast_break_points_attempted END) AS home_fast_break_points_attempted,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.fast_break_points_made END) AS home_fast_break_points_made,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.fast_break_points_attempted END) AS away_fast_break_points_attempted,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.fast_break_points_made END) AS away_fast_break_points_made,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.points_in_the_paint_attempted END) AS home_points_in_the_paint_attempted,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.points_in_the_paint_made END) AS home_points_in_the_paint_made,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.points_in_the_paint_attempted END) AS away_points_in_the_paint_attempted,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.points_in_the_paint_made END) AS away_points_in_the_paint_made,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.second_chance_points_attempted END) AS home_second_chance_points_attempted,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.second_chance_points_made END) AS home_second_chance_points_made,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.second_chance_points_attempted END) AS away_second_chance_points_attempted,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.second_chance_points_made END) AS away_second_chance_points_made,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.turnovers END) AS home_turnovers,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.turnovers_total END) AS home_turnovers_total,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.turnovers END) AS away_turnovers,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.turnovers_total END) AS away_turnovers_total,
+        MAX(CASE WHEN gs.home_away = 'home' THEN gs.assists_turnover_ratio END) AS home_assists_turnover_ratio,
+        MAX(CASE WHEN gs.home_away = 'away' THEN gs.assists_turnover_ratio END) AS away_assists_turnover_ratio
       FROM game_statistics gs
       LEFT JOIN game_actions ga ON ga.game_id = gs.game_id
       WHERE gs.game_id = ?

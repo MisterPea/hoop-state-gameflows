@@ -18,6 +18,7 @@ import ScoreMarginChart from "@/components/ScoreMarginChart/ScoreMarginChart";
 import GamePageTitle from "@/components/GamePageTitle/GamePageTitle";
 import GamePageTitleInfo from "@/components/GamePageTitleInfo/GamePageTitleInfo";
 import GameSectionWrapper from "@/components/GameSectionWrapper/GameSectionWrapper";
+import GameCompareAttemptMadeBar from "@/components/GameCompareAttemptMadeBar/GameCompareAttemptMadeBar";
 import { formatGameDate } from "@/lib/format-date";
 
 export const runtime = "nodejs";
@@ -62,7 +63,7 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
           <div className={styles.dateGameIdRow}>
             <GamePageTitleInfo
               title="Date:"
-              data={formatGameDate(date)}
+              data={formatGameDate( date )}
             />
             <GamePageTitleInfo
               title="Game Id:"
@@ -79,9 +80,115 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
             />
           </div>
         </header>
-         <GameSectionWrapper title="By The Numbers" className={styles.sectionWrapper}>
-          <p>a</p>
-         </GameSectionWrapper>
+        <GameSectionWrapper title="By The Numbers" className={styles.sectionWrapper}>
+          <div className={styles.byTheNumbersGrid}>
+            <GameCompareAttemptMadeBar
+              chartLabel="2 Pointers"
+              awayTricode={awayTricode}
+              awayAttempts={summary.awayTwoPointersAttempted}
+              awayMade={summary.awayTwoPointersMade}
+              homeTricode={homeTricode}
+              homeAttempts={summary.homeTwoPointersAttempted}
+              homeMade={summary.homeTwoPointersMade}
+              includePctBadge
+              includeMadeAmt
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+            />
+            <GameCompareAttemptMadeBar
+              chartLabel="3 Pointers"
+              awayTricode={awayTricode}
+              awayAttempts={summary.awayThreePointersAttempted}
+              awayMade={summary.awayThreePointersMade}
+              homeTricode={homeTricode}
+              homeAttempts={summary.homeThreePointersAttempted}
+              homeMade={summary.homeThreePointersMade}
+              includePctBadge
+              includeMadeAmt
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+            />
+            <GameCompareAttemptMadeBar
+              chartLabel="Free Throws"
+              awayTricode={awayTricode}
+              awayAttempts={summary.awayFreeThrowsAttempted}
+              awayMade={summary.awayFreeThrowsMade}
+              homeTricode={homeTricode}
+              homeAttempts={summary.homeFreeThrowsAttempted}
+              homeMade={summary.homeFreeThrowsMade}
+              includePctBadge
+              includeMadeAmt
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+            />
+            <GameCompareAttemptMadeBar
+              chartLabel="Fast Break Points"
+              awayTricode={awayTricode}
+              awayAttempts={summary.awayFastBreakPointsAttempted}
+              awayMade={summary.awayFastBreakPointsMade}
+              homeTricode={homeTricode}
+              homeAttempts={summary.homeFastBreakPointsAttempted}
+              homeMade={summary.homeFastBreakPointsMade}
+              includePctBadge
+              includeMadeAmt
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+            />
+            <GameCompareAttemptMadeBar
+              chartLabel="Points in the Paint"
+              awayTricode={awayTricode}
+              awayAttempts={summary.awayPointsInThePaintAttempted}
+              awayMade={summary.awayPointsInThePaintMade}
+              homeTricode={homeTricode}
+              homeAttempts={summary.homePointsInThePaintAttempted}
+              homeMade={summary.homePointsInThePaintMade}
+              includePctBadge
+              includeMadeAmt
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+            />
+            <GameCompareAttemptMadeBar
+              chartLabel="Second Chance Points"
+              awayTricode={awayTricode}
+              awayAttempts={summary.awaySecondChancePointsAttempted}
+              awayMade={summary.awaySecondChancePointsMade}
+              homeTricode={homeTricode}
+              homeAttempts={summary.homeSecondChancePointsAttempted}
+              homeMade={summary.homeSecondChancePointsMade}
+              includePctBadge
+              includeMadeAmt
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+            />
+            <GameCompareAttemptMadeBar
+              chartLabel="Player Turnovers - Team Turnovers"
+              awayTricode={awayTricode}
+              awayAttempts={summary.awayTurnoversTotal}
+              awayMade={summary.awayTurnovers}
+              homeTricode={homeTricode}
+              homeAttempts={summary.homeTurnoversTotal}
+              homeMade={summary.homeTurnovers}
+              includeMadeAmt
+              includeTotal={false}
+              includeMissedAmt
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+            />
+            <GameCompareAttemptMadeBar
+              chartLabel="Assist/Turnover Ratio"
+              awayTricode={awayTricode}
+              awayAttempts={+summary.awayAssistsTurnoverRatio.toFixed(6)}
+              awayMade={+summary.awayAssistsTurnoverRatio.toFixed(6)}
+              homeTricode={homeTricode}
+              homeAttempts={+summary.homeAssistsTurnoverRatio.toFixed(6)}
+              homeMade={+summary.homeAssistsTurnoverRatio.toFixed(6)}
+              awayTeamColor={getTeamColor( awayTricode )}
+              homeTeamColor={getTeamColor( homeTricode )}
+              includeTotal={false}
+              includeMadeAmt
+            />
+          </div>
+        </GameSectionWrapper>
         <GameSectionWrapper title="Game Flow" className={styles.sectionWrapper}>
           <div className={styles.awayWrapper}>
             {rotations.away.map( player => (
