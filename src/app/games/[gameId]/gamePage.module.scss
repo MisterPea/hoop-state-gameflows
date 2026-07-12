@@ -18,7 +18,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
   }
-
 }
 
 .homeWrapper {
@@ -27,4 +26,22 @@
 
 .awayWrapper {
   padding-bottom: 5px;
+}
+
+.boxScoreLegendTitle{
+  margin-bottom: 0.5rem;
+}
+
+.boxScoreLegendElements {
+  ul {
+    width: max-content;
+    display: grid;
+    column-gap: 2rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-weight: 400;
+    font-size: 0.65rem;
+    span {
+      font-weight: 600;
+    }
+  }
 }

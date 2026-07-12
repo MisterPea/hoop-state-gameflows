@@ -2,6 +2,7 @@ import styles from "./gamePage.module.scss";
 import { notFound } from "next/navigation";
 import {
   getAllGameIds,
+  getBoxScorePlayers,
   getDate,
   getGameSummary,
   getOfficials,
@@ -15,6 +16,7 @@ import {
 import GameFlowRow from "@/components/GameFlowRow/GameFlowRow";
 import LineupBar from "@/components/LineupBar/LineupBar";
 import ScoreMarginChart from "@/components/ScoreMarginChart/ScoreMarginChart";
+import BoxScoreTable from "@/components/BoxScoreTable/BoxScoreTable";
 import GamePageTitle from "@/components/GamePageTitle/GamePageTitle";
 import GamePageTitleInfo from "@/components/GamePageTitleInfo/GamePageTitleInfo";
 import GameSectionWrapper from "@/components/GameSectionWrapper/GameSectionWrapper";
@@ -34,13 +36,14 @@ export async function generateStaticParams() {
 
 export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
   const { gameId } = await props.params;
-  const [summary, actions, officials, date, rotations, scoreMargin] = await Promise.all( [
+  const [summary, actions, officials, date, rotations, scoreMargin, boxScore] = await Promise.all( [
     getGameSummary( gameId ),
     getRecentGameActions( gameId ),
     getOfficials( gameId ),
     getDate( gameId ),
     getPlayerRotations( gameId ),
     getScoreMargin( gameId ),
+    getBoxScorePlayers( gameId ),
   ] );
 
   if ( !summary ) {
@@ -177,11 +180,11 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
             <GameCompareAttemptMadeBar
               chartLabel="Assist/Turnover Ratio"
               awayTricode={awayTricode}
-              awayAttempts={+summary.awayAssistsTurnoverRatio.toFixed(6)}
-              awayMade={+summary.awayAssistsTurnoverRatio.toFixed(6)}
+              awayAttempts={+summary.awayAssistsTurnoverRatio.toFixed( 6 )}
+              awayMade={+summary.awayAssistsTurnoverRatio.toFixed( 6 )}
               homeTricode={homeTricode}
-              homeAttempts={+summary.homeAssistsTurnoverRatio.toFixed(6)}
-              homeMade={+summary.homeAssistsTurnoverRatio.toFixed(6)}
+              homeAttempts={+summary.homeAssistsTurnoverRatio.toFixed( 6 )}
+              homeMade={+summary.homeAssistsTurnoverRatio.toFixed( 6 )}
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
               includeTotal={false}
@@ -242,8 +245,39 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
           </div>
         </GameSectionWrapper>
         <GameSectionWrapper title="Box Scores">
+          <BoxScoreTable
+            teamName={getTeamName( awayTricode )}
+            teamColor={getTeamColor( awayTricode )}
+            players={boxScore.away}
+          />
+          <BoxScoreTable
+            teamName={getTeamName( homeTricode )}
+            teamColor={getTeamColor( homeTricode )}
+            players={boxScore.home}
+          />
 
-          <p>dd</p>
+          <h5 className={styles.boxScoreLegendTitle}>Legend</h5>
+          <div className={styles.boxScoreLegendElements}>
+            <ul>
+              <li><span>MIN</span> - Minutes Played</li>
+              <li><span>PTS</span> - Total Points Scored</li>
+              <li><span>TS%</span> - True Shooting Percentage</li>
+              <li><span>REB</span> - Rebounds</li>
+              <li><span>AST</span> - Assists</li>
+              <li><span>STL</span> - Steals</li>
+              <li><span>BLK</span> - Blocks</li>
+              <li><span>TOV</span> - Turnovers</li>
+              <li><span>PF</span> - Personal Fouls</li>
+              <li><span>FT</span> - Free Throws Made/Attempted</li>
+              <li><span>FT%</span> - Free Throw Percentage</li>
+              <li><span>2PT</span> - 2 Pointers Made/Attempted</li>
+              <li><span>2PT%</span> - 2 Point Percentage</li>
+              <li><span>3PT</span> - 3 Pointers Made/Attempted</li>
+              <li><span>3PT%</span> - 3 Point Percentage</li>
+              <li><span>PER</span> - Player Efficiency Rating</li>
+              <li><span>USG%</span> - Usage Percentage</li>
+            </ul>
+          </div>
         </GameSectionWrapper>
       </section>
     </main>

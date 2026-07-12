@@ -1059,3 +1059,428 @@ export async function getScoreMargin( gameId: string ): Promise<GameScoreMargin>
     maxAwayLead: getMaxAwayLead( points ),
   };
 }
+
+export type BoxScorePlayer = {
+  personId: number;
+  playerName: string;
+  jerseyNumber: string | null;
+  position: string | null;
+  starter: boolean;
+  played: boolean;
+  playingStatus: "ACTIVE" | "INACTIVE";
+  teamTricode: string;
+  homeAway: "home" | "away";
+  minutesPlayed: number;
+  points: number;
+  trueShootingPct: number | null;
+  usagePct: number | null;
+  per: number | null;
+  rebounds: number;
+  reboundsOffensive: number;
+  reboundsDefensive: number;
+  assists: number;
+  steals: number;
+  blocks: number;
+  turnovers: number;
+  personalFouls: number;
+  freeThrowsMade: number;
+  freeThrowsAttempted: number;
+  freeThrowPct: number;
+  twoPointMade: number;
+  twoPointAttempted: number;
+  twoPointPct: number;
+  threePointMade: number;
+  threePointAttempted: number;
+  threePointPct: number;
+  plusMinus: number;
+};
+
+export type GameBoxScore = {
+  home: BoxScorePlayer[];
+  away: BoxScorePlayer[];
+};
+
+// League-average constants (VOP/factor/DRB%, pace, PER normalization) used to turn a single
+// game's raw box line into a Hollinger-style PER. These are season-wide aggregates, expensive
+// to compute, and identical for every game in a season, so they're cached per season.
+type LeagueContext = {
+  vop: number;
+  factor: number;
+  drbp: number;
+  ftPerPf: number;
+  ftaPerPf: number;
+  lgPace: number;
+  normConstant: number;
+  teamAstToFg: Map<string, number>;
+  teamPace: Map<string, number>;
+};
+
+type LeagueTotalsRow = {
+  team_tricode?: string;
+  pts: number;
+  fg: number;
+  fga: number;
+  tpm: number;
+  ast: number;
+  orb: number;
+  trb: number;
+  tov: number;
+  ft: number;
+  fta: number;
+  pf: number;
+  stl: number;
+  blk: number;
+  mp: number;
+};
+
+type TeamGameStatRow = {
+  game_id: string;
+  team_tricode: string;
+  home_away: string;
+  fga: number;
+  fgm: number;
+  fta: number;
+  orb: number;
+  drb: number;
+  tov: number;
+};
+
+type TeamMinutesRow = {
+  game_id: string;
+  team_tricode: string;
+  team_minutes: number;
+};
+
+const LEAGUE_TOTALS_SELECT = `
+  SUM(bsp.points) AS pts, SUM(bsp.field_goals_made) AS fg, SUM(bsp.field_goals_attempted) AS fga,
+  SUM(bsp.three_point_made) AS tpm, SUM(bsp.assists) AS ast,
+  SUM(bsp.rebounds_offensive) AS orb, SUM(bsp.rebounds_total) AS trb, SUM(bsp.turnovers) AS tov,
+  SUM(bsp.free_throws_made) AS ft, SUM(bsp.free_throws_attempted) AS fta,
+  SUM(bsp.fouls_personal) AS pf, SUM(bsp.steals) AS stl, SUM(bsp.blocks) AS blk,
+  SUM(bsp.minutes_played) AS mp
+`;
+
+async function computeLeagueContext( season: string ): Promise<LeagueContext> {
+  const db = getDb();
+
+  const [lgTotals] = ( await db.getAllData(
+    `SELECT ${LEAGUE_TOTALS_SELECT}
+     FROM box_score_participants bsp
+     JOIN games g ON g.game_id = bsp.game_id
+     WHERE g.season = ? AND bsp.is_official = 0 AND bsp.played = 1`,
+    [season],
+  ) ) as LeagueTotalsRow[];
+
+  const teamTotalsRows = ( await db.getAllData(
+    `SELECT bsp.team_tricode, ${LEAGUE_TOTALS_SELECT}
+     FROM box_score_participants bsp
+     JOIN games g ON g.game_id = bsp.game_id
+     WHERE g.season = ? AND bsp.is_official = 0 AND bsp.played = 1
+     GROUP BY bsp.team_tricode`,
+    [season],
+  ) ) as LeagueTotalsRow[];
+
+  const teamGameStatRows = ( await db.getAllData(
+    `SELECT gs.game_id, gs.team_tricode, gs.home_away,
+            gs.field_goals_attempted AS fga, gs.field_goals_made AS fgm,
+            gs.free_throws_attempted AS fta, gs.rebounds_offensive AS orb,
+            gs.rebounds_defensive AS drb, gs.turnovers_total AS tov
+     FROM game_statistics gs
+     JOIN games g ON g.game_id = gs.game_id
+     WHERE g.season = ?`,
+    [season],
+  ) ) as TeamGameStatRow[];
+
+  const teamMinutesRows = ( await db.getAllData(
+    `SELECT bsp.game_id, bsp.team_tricode, SUM(bsp.minutes_played) AS team_minutes
+     FROM box_score_participants bsp
+     JOIN games g ON g.game_id = bsp.game_id
+     WHERE g.season = ? AND bsp.is_official = 0 AND bsp.played = 1
+     GROUP BY bsp.game_id, bsp.team_tricode`,
+    [season],
+  ) ) as TeamMinutesRow[];
+
+  const gameStatsByGame = new Map<string, { home?: TeamGameStatRow; away?: TeamGameStatRow; }>();
+  for ( const row of teamGameStatRows ) {
+    const entry = gameStatsByGame.get( row.game_id ) ?? {};
+    if ( row.home_away === "home" ) entry.home = row; else entry.away = row;
+    gameStatsByGame.set( row.game_id, entry );
+  }
+
+  const teamMinutesByGame = new Map<string, number>();
+  for ( const row of teamMinutesRows ) {
+    teamMinutesByGame.set( `${row.game_id}:${row.team_tricode}`, row.team_minutes );
+  }
+
+  // Pace (possessions per 48 min) needs both teams' box totals for a game, since it's
+  // estimated from combined possessions. It's shared by both teams for that single game.
+  let lgPaceSum = 0;
+  let lgPaceCount = 0;
+  const teamPaceSum = new Map<string, number>();
+  const teamPaceCount = new Map<string, number>();
+
+  for ( const { home, away } of gameStatsByGame.values() ) {
+    if ( !home || !away ) continue;
+    const gameId = home.game_id;
+    const teamMinutes = teamMinutesByGame.get( `${gameId}:${home.team_tricode}` )
+      ?? teamMinutesByGame.get( `${gameId}:${away.team_tricode}` );
+    if ( !teamMinutes ) continue;
+
+    const homePoss = home.fga + 0.4 * home.fta
+      - 1.07 * ( home.orb / ( home.orb + away.drb || 1 ) ) * ( home.fga - home.fgm )
+      + home.tov;
+    const awayPoss = away.fga + 0.4 * away.fta
+      - 1.07 * ( away.orb / ( away.orb + home.drb || 1 ) ) * ( away.fga - away.fgm )
+      + away.tov;
+    const gamePace = 48 * ( ( homePoss + awayPoss ) / 2 ) / ( teamMinutes / 5 );
+
+    lgPaceSum += gamePace;
+    lgPaceCount += 1;
+    teamPaceSum.set( home.team_tricode, ( teamPaceSum.get( home.team_tricode ) ?? 0 ) + gamePace );
+    teamPaceCount.set( home.team_tricode, ( teamPaceCount.get( home.team_tricode ) ?? 0 ) + 1 );
+    teamPaceSum.set( away.team_tricode, ( teamPaceSum.get( away.team_tricode ) ?? 0 ) + gamePace );
+    teamPaceCount.set( away.team_tricode, ( teamPaceCount.get( away.team_tricode ) ?? 0 ) + 1 );
+  }
+
+  const lgPace = lgPaceCount > 0 ? lgPaceSum / lgPaceCount : 100;
+  const teamPace = new Map<string, number>();
+  for ( const [team, sum] of teamPaceSum ) {
+    teamPace.set( team, sum / ( teamPaceCount.get( team ) ?? 1 ) );
+  }
+
+  const factor = ( 2 / 3 ) - ( 0.5 * ( lgTotals.ast / lgTotals.fg ) ) / ( 2 * ( lgTotals.fg / lgTotals.ft ) );
+  const vop = lgTotals.pts / ( lgTotals.fga - lgTotals.orb + lgTotals.tov + 0.44 * lgTotals.fta );
+  const drbp = ( lgTotals.trb - lgTotals.orb ) / lgTotals.trb;
+  const ftPerPf = lgTotals.ft / lgTotals.pf;
+  const ftaPerPf = lgTotals.fta / lgTotals.pf;
+
+  function rawUPerSum( t: LeagueTotalsRow, astToFg: number ) {
+    return t.tpm
+      + ( 2 / 3 ) * t.ast
+      + ( 2 - factor * astToFg ) * t.fg
+      + t.ft * 0.5 * ( 1 + ( 1 - astToFg ) + ( 2 / 3 ) * astToFg )
+      - vop * t.tov
+      - vop * drbp * ( t.fga - t.fg )
+      - vop * 0.44 * ( 0.44 + 0.56 * drbp ) * ( t.fta - t.ft )
+      + vop * ( 1 - drbp ) * ( t.trb - t.orb )
+      + vop * drbp * t.orb
+      + vop * t.stl
+      + vop * drbp * t.blk
+      - t.pf * ( ftPerPf - 0.44 * ftaPerPf * vop );
+  }
+
+  // By linearity of uPER in the box-score categories, the minutes-weighted average uPER across
+  // a group of players equals uPER computed on that group's *summed* stats. That lets the
+  // per-team and league-wide normalization constants be derived from aggregate SQL sums instead
+  // of looping over every individual player-game in the season.
+  const teamAstToFg = new Map<string, number>();
+  let paceAdjSum = 0;
+  let mpSum = 0;
+
+  for ( const t of teamTotalsRows ) {
+    if ( !t.team_tricode || !t.fg ) continue;
+    const astToFg = t.ast / t.fg;
+    teamAstToFg.set( t.team_tricode, astToFg );
+    const pace = teamPace.get( t.team_tricode ) ?? lgPace;
+    paceAdjSum += rawUPerSum( t, astToFg ) * ( lgPace / pace );
+    mpSum += t.mp;
+  }
+
+  const lgAvgPaceAdjUPer = mpSum > 0 ? paceAdjSum / mpSum : 1;
+  const normConstant = lgAvgPaceAdjUPer !== 0 ? 15 / lgAvgPaceAdjUPer : 1;
+
+  return { vop, factor, drbp, ftPerPf, ftaPerPf, lgPace, normConstant, teamAstToFg, teamPace };
+}
+
+const leagueContextCache = new Map<string, Promise<LeagueContext>>();
+
+function getLeagueContext( season: string ): Promise<LeagueContext> {
+  let cached = leagueContextCache.get( season );
+  if ( !cached ) {
+    cached = computeLeagueContext( season );
+    leagueContextCache.set( season, cached );
+  }
+  return cached;
+}
+
+type BoxScoreParticipantRow = {
+  person_id: number;
+  name_i: string;
+  team_tricode: string;
+  home_away: string;
+  starter: number;
+  played: number;
+  jersey_number: string | null;
+  position: string | null;
+  playing_status: string;
+  minutes_played: number;
+  points: number;
+  assists: number;
+  blocks: number;
+  steals: number;
+  turnovers: number;
+  fouls_personal: number;
+  rebounds_offensive: number;
+  rebounds_defensive: number;
+  rebounds_total: number;
+  field_goals_made: number;
+  field_goals_attempted: number;
+  two_point_made: number;
+  two_point_attempts: number;
+  two_point_pct: number;
+  three_point_made: number;
+  three_point_attempts: number;
+  three_point_pct: number;
+  free_throws_made: number;
+  free_throws_attempted: number;
+  free_throw_pct: number;
+  plus_minus: number;
+};
+
+type TeamBoxTotalsRow = {
+  team_tricode: string;
+  field_goals_attempted: number;
+  free_throws_attempted: number;
+  turnovers_total: number;
+};
+
+export async function getBoxScorePlayers( gameId: string ): Promise<GameBoxScore> {
+  const db = getDb();
+
+  const gameRow = ( await db.getData(
+    `SELECT season FROM games WHERE game_id = ?`,
+    [gameId],
+  ) ) as { season: string; } | undefined;
+
+  const participantRows = ( await db.getAllData(
+    `SELECT person_id, name_i, team_tricode, home_away, starter, played,
+            jersey_number, position, playing_status, minutes_played,
+            points, assists, blocks, steals, turnovers, fouls_personal,
+            rebounds_offensive, rebounds_defensive, rebounds_total,
+            field_goals_made, field_goals_attempted,
+            two_point_made, two_point_attempts, two_point_pct,
+            three_point_made, three_point_attempts, three_point_pct,
+            free_throws_made, free_throws_attempted, free_throw_pct,
+            plus_minus
+     FROM box_score_participants
+     WHERE game_id = ? AND is_official = 0`,
+    [gameId],
+  ) ) as BoxScoreParticipantRow[];
+
+  const teamTotalsRows = ( await db.getAllData(
+    `SELECT team_tricode, field_goals_attempted, free_throws_attempted, turnovers_total
+     FROM game_statistics
+     WHERE game_id = ?`,
+    [gameId],
+  ) ) as TeamBoxTotalsRow[];
+
+  const teamMinutes = new Map<string, number>();
+  for ( const row of participantRows ) {
+    if ( row.played !== 1 ) continue;
+    teamMinutes.set( row.team_tricode, ( teamMinutes.get( row.team_tricode ) ?? 0 ) + row.minutes_played );
+  }
+
+  const teamBoxTotals = new Map<string, TeamBoxTotalsRow>();
+  for ( const row of teamTotalsRows ) {
+    teamBoxTotals.set( row.team_tricode, row );
+  }
+
+  const leagueContext = gameRow ? await getLeagueContext( gameRow.season ) : null;
+
+  function mapPlayer( row: BoxScoreParticipantRow ): BoxScorePlayer {
+    const played = row.played === 1;
+    const minutes = row.minutes_played;
+
+    let trueShootingPct: number | null = null;
+    let usagePct: number | null = null;
+    let per: number | null = null;
+
+    if ( played && minutes > 0 ) {
+      const tsaDenominator = 2 * ( row.field_goals_attempted + 0.44 * row.free_throws_attempted );
+      trueShootingPct = tsaDenominator > 0 ? row.points / tsaDenominator : 0;
+
+      const teamTotals = teamBoxTotals.get( row.team_tricode );
+      const tmMinutes = teamMinutes.get( row.team_tricode );
+      if ( teamTotals && tmMinutes ) {
+        const usageDenominator = teamTotals.field_goals_attempted
+          + 0.44 * teamTotals.free_throws_attempted
+          + teamTotals.turnovers_total;
+        usagePct = usageDenominator > 0
+          ? 100 * ( ( row.field_goals_attempted + 0.44 * row.free_throws_attempted + row.turnovers ) * ( tmMinutes / 5 ) )
+            / ( minutes * usageDenominator )
+          : 0;
+      }
+
+      if ( leagueContext ) {
+        const { vop, factor, drbp, ftPerPf, ftaPerPf, lgPace, normConstant } = leagueContext;
+        const astToFg = leagueContext.teamAstToFg.get( row.team_tricode ) ?? 0;
+
+        const rawUPer = row.three_point_made
+          + ( 2 / 3 ) * row.assists
+          + ( 2 - factor * astToFg ) * row.field_goals_made
+          + row.free_throws_made * 0.5 * ( 1 + ( 1 - astToFg ) + ( 2 / 3 ) * astToFg )
+          - vop * row.turnovers
+          - vop * drbp * ( row.field_goals_attempted - row.field_goals_made )
+          - vop * 0.44 * ( 0.44 + 0.56 * drbp ) * ( row.free_throws_attempted - row.free_throws_made )
+          + vop * ( 1 - drbp ) * ( row.rebounds_total - row.rebounds_offensive )
+          + vop * drbp * row.rebounds_offensive
+          + vop * row.steals
+          + vop * drbp * row.blocks
+          - row.fouls_personal * ( ftPerPf - 0.44 * ftaPerPf * vop );
+
+        const teamPace = leagueContext.teamPace.get( row.team_tricode ) ?? lgPace;
+        per = ( rawUPer / minutes ) * ( lgPace / teamPace ) * normConstant;
+      }
+    }
+
+    return {
+      personId: row.person_id,
+      playerName: row.name_i,
+      jerseyNumber: row.jersey_number,
+      position: row.position,
+      starter: row.starter === 1,
+      played,
+      playingStatus: row.playing_status === "INACTIVE" ? "INACTIVE" : "ACTIVE",
+      teamTricode: row.team_tricode,
+      homeAway: row.home_away as "home" | "away",
+      minutesPlayed: minutes,
+      points: row.points,
+      trueShootingPct,
+      usagePct,
+      per,
+      reboundsOffensive: row.rebounds_offensive,
+      reboundsDefensive: row.rebounds_defensive,
+      rebounds: row.rebounds_total,
+      assists: row.assists,
+      steals: row.steals,
+      blocks: row.blocks,
+      turnovers: row.turnovers,
+      personalFouls: row.fouls_personal,
+      freeThrowsMade: row.free_throws_made,
+      freeThrowsAttempted: row.free_throws_attempted,
+      freeThrowPct: row.free_throw_pct,
+      twoPointMade: row.two_point_made,
+      twoPointAttempted: row.two_point_attempts,
+      twoPointPct: row.two_point_pct,
+      threePointMade: row.three_point_made,
+      threePointAttempted: row.three_point_attempts,
+      threePointPct: row.three_point_pct,
+      plusMinus: Math.round( row.plus_minus ),
+    };
+  }
+
+  const players = participantRows.map( mapPlayer );
+
+  const sortPlayers = ( a: BoxScorePlayer, b: BoxScorePlayer ) => {
+    if ( a.played !== b.played ) return a.played ? -1 : 1;
+    if ( a.starter !== b.starter ) return a.starter ? -1 : 1;
+    if ( a.minutesPlayed !== b.minutesPlayed ) return b.minutesPlayed - a.minutesPlayed;
+    if ( a.playingStatus !== b.playingStatus ) return a.playingStatus === "ACTIVE" ? -1 : 1;
+    return a.playerName.localeCompare( b.playerName );
+  };
+
+  return {
+    home: players.filter( p => p.homeAway === "home" ).sort( sortPlayers ),
+    away: players.filter( p => p.homeAway === "away" ).sort( sortPlayers ),
+  };
+}

@@ -124,6 +124,10 @@
   }
 }
 
+.overtimePeriod {
+  width: 42%;
+}
+
 .scoreLine {
   stroke-width: 1px;
   @include tablet-up {

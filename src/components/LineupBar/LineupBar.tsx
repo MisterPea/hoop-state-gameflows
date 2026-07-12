@@ -38,7 +38,7 @@ export default function LineupBar( { intervals, overtimes }: LineupBarProps ) {
     const dur = periodDuration( period );
     const periodIntervals = intervals.filter( i => i.period === period );
     return (
-      <div key={period} className={styles.periodBar}>
+      <div key={period} className={period <= 4 ? styles.periodBar : styles.overtimePeriod}>
         {periodIntervals.map( ( interval, idx ) => (
           <div
             key={idx}
