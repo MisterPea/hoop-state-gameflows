@@ -3,7 +3,6 @@ import styles from "./BoxScoreTable.module.scss";
 
 type BoxScoreTableProps = {
   teamName: string;
-  teamColor: string;
   players: BoxScorePlayer[];
 };
 
@@ -17,10 +16,10 @@ function formatStat( value: number | null ) {
   return value == null ? "—" : value.toFixed( 1 );
 }
 
-export default function BoxScoreTable( { teamName, teamColor, players }: BoxScoreTableProps ) {
+export default function BoxScoreTable( { teamName, players }: BoxScoreTableProps ) {
   return (
     <div className={styles.boxScoreTable}>
-      <h3 className={styles.teamName} style={{ borderColor: teamColor }}>{teamName}</h3>
+      <h3 className={styles.teamName}>{teamName}</h3>
       <div className={styles.scrollWrap}>
         <table className={styles.table}>
           <thead>
@@ -35,8 +34,8 @@ export default function BoxScoreTable( { teamName, teamColor, players }: BoxScor
               <th className={styles.groupEnd} scope="col" title="Blocks">BLK</th>
               <th scope="col" title="Turnovers">TOV</th>
               <th className={styles.groupEnd} scope="col" title="Personal Fouls">PF</th>
-              <th scope="col" title="Offensive Rebounds">OREB</th>
-              <th className={styles.groupEnd} scope="col" title="Defensive Rebounds">DREB</th>
+              <th scope="col" title="Offensive Rebounds">ORB</th>
+              <th className={styles.groupEnd} scope="col" title="Defensive Rebounds">DRB</th>
               <th scope="col" title="Free Throws Made-Attempted">FT</th>
               <th className={styles.groupEnd} scope="col" title="Free Throw %">FT%</th>
               <th scope="col" title="Two Pointers Made-Attempted">2PT</th>
@@ -59,7 +58,7 @@ export default function BoxScoreTable( { teamName, teamColor, players }: BoxScor
                 </th>
                 {!player.played ? (
                   <td className={styles.dnpCell} colSpan={STAT_COLUMN_COUNT}>
-                    {player.playingStatus === "INACTIVE" ? "INACTIVE" : "DNP"}
+                    {player.playingStatus === "INACTIVE" ? "Inactive" : "DNP - Coach's Decision"}
                   </td>
                 ) : (
                   <>

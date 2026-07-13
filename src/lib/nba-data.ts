@@ -785,6 +785,10 @@ export function getTeamName( tricode: string ): string {
   return tricodeToTeamName[tricode] ?? tricode;
 }
 
+export function getTeamNickname( tricode: string ): string {
+  return tricodeToTeam[tricode] ?? tricode;
+}
+
 type ParticipantRow = {
   person_id: number;
   name_i: string;
@@ -1407,7 +1411,7 @@ export async function getBoxScorePlayers( gameId: string ): Promise<GameBoxScore
           + teamTotals.turnovers_total;
         usagePct = usageDenominator > 0
           ? 100 * ( ( row.field_goals_attempted + 0.44 * row.free_throws_attempted + row.turnovers ) * ( tmMinutes / 5 ) )
-            / ( minutes * usageDenominator )
+          / ( minutes * usageDenominator )
           : 0;
       }
 
@@ -1483,4 +1487,98 @@ export async function getBoxScorePlayers( gameId: string ): Promise<GameBoxScore
     home: players.filter( p => p.homeAway === "home" ).sort( sortPlayers ),
     away: players.filter( p => p.homeAway === "away" ).sort( sortPlayers ),
   };
+}
+
+export type ShotZone = "rim" | "paint" | "mid" | "three";
+
+export type ShotChartPoint = {
+  actionNumber: number;
+  x: number; // 0-100, normalized so every shot for a team lands on the same half-court
+  y: number; // 0-100
+  made: boolean;
+  zone: ShotZone;
+  period: number;
+  clockSeconds: number;
+  description: string;
+};
+
+export type GameShotChart = {
+  home: ShotChartPoint[];
+  away: ShotChartPoint[];
+};
+
+type ShotActionRow = {
+  action_number: number;
+  team_tricode: string;
+  home_away: string;
+  period: number;
+  clock: number | null;
+  x: number | null;
+  y: number | null;
+  side: string | null;
+  shot_result: string | null;
+  area: string | null;
+  play_description: string | null;
+};
+
+function shotZone( area: string | null ): ShotZone {
+  switch ( area ) {
+    case "Restricted Area": return "rim";
+    case "In The Paint (Non-RA)": return "paint";
+    case "Mid-Range": return "mid";
+    default: return "three"; // Left Corner 3 / Right Corner 3 / Above the Break 3
+  }
+}
+
+export async function getShotChartData( gameId: string ): Promise<GameShotChart> {
+  const db = getDb();
+
+  const rows = ( await db.getAllData(
+    `
+      SELECT
+        ga.action_number,
+        ga.team_tricode,
+        gs.home_away,
+        ga.period,
+        ga.clock,
+        ga.x,
+        ga.y,
+        ga.side,
+        ga.shot_result,
+        ga.area,
+        ga.play_description
+      FROM game_actions ga
+      JOIN game_statistics gs ON gs.game_id = ga.game_id AND gs.team_tricode = ga.team_tricode
+      WHERE ga.game_id = ? AND ga.is_field_goal = 1 AND ga.x IS NOT NULL AND ga.y IS NOT NULL
+      ORDER BY ga.action_number ASC
+    `,
+    [gameId],
+  ) ) as ShotActionRow[];
+
+  const home: ShotChartPoint[] = [];
+  const away: ShotChartPoint[] = [];
+
+  for ( const row of rows ) {
+    const rawX = row.x ?? 0;
+    const rawY = row.y ?? 0;
+    // Teams switch baskets each half; mirror "right" side shots so every attempt
+    // for a team lands on the same half of the court.
+    const x = row.side === "right" ? 100 - rawX : rawX;
+    const y = row.side === "right" ? 100 - rawY : rawY;
+
+    const point: ShotChartPoint = {
+      actionNumber: row.action_number,
+      x,
+      y,
+      made: row.shot_result === "Made",
+      zone: shotZone( row.area ),
+      period: row.period,
+      clockSeconds: row.clock ?? 0,
+      description: row.play_description ?? "",
+    };
+
+    ( row.home_away === "home" ? home : away ).push( point );
+  }
+
+  return { home, away };
 }

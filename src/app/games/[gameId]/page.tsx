@@ -9,9 +9,11 @@ import {
   getPlayerRotations,
   getRecentGameActions,
   getScoreMargin,
+  getShotChartData,
   getTeamAccentColor,
   getTeamColor,
   getTeamName,
+  getTeamNickname,
 } from "@/lib/nba-data";
 import GameFlowRow from "@/components/GameFlowRow/GameFlowRow";
 import LineupBar from "@/components/LineupBar/LineupBar";
@@ -21,6 +23,7 @@ import GamePageTitle from "@/components/GamePageTitle/GamePageTitle";
 import GamePageTitleInfo from "@/components/GamePageTitleInfo/GamePageTitleInfo";
 import GameSectionWrapper from "@/components/GameSectionWrapper/GameSectionWrapper";
 import GameCompareAttemptMadeBar from "@/components/GameCompareAttemptMadeBar/GameCompareAttemptMadeBar";
+import ShotChart from "@/components/ShotChart/ShotChart";
 import { formatGameDate } from "@/lib/format-date";
 
 export const runtime = "nodejs";
@@ -36,7 +39,7 @@ export async function generateStaticParams() {
 
 export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
   const { gameId } = await props.params;
-  const [summary, actions, officials, date, rotations, scoreMargin, boxScore] = await Promise.all( [
+  const [summary, actions, officials, date, rotations, scoreMargin, boxScore, shotChart] = await Promise.all( [
     getGameSummary( gameId ),
     getRecentGameActions( gameId ),
     getOfficials( gameId ),
@@ -44,6 +47,7 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
     getPlayerRotations( gameId ),
     getScoreMargin( gameId ),
     getBoxScorePlayers( gameId ),
+    getShotChartData( gameId ),
   ] );
 
   if ( !summary ) {
@@ -218,8 +222,8 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
             maxAwayLead={scoreMargin.maxAwayLead}
             homeColor={getTeamColor( homeTricode )}
             awayColor={getTeamColor( awayTricode )}
-            homeTeam={getTeamName( homeTricode )}
-            awayTeam={getTeamName( awayTricode )}
+            homeTeam={getTeamNickname( homeTricode )}
+            awayTeam={getTeamNickname( awayTricode )}
             homeTricode={homeTricode}
             awayTricode={awayTricode}
             homeScore={summary.homePoints}
@@ -247,12 +251,10 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
         <GameSectionWrapper title="Box Scores">
           <BoxScoreTable
             teamName={getTeamName( awayTricode )}
-            teamColor={getTeamColor( awayTricode )}
             players={boxScore.away}
           />
           <BoxScoreTable
             teamName={getTeamName( homeTricode )}
-            teamColor={getTeamColor( homeTricode )}
             players={boxScore.home}
           />
 
@@ -260,23 +262,31 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
           <div className={styles.boxScoreLegendElements}>
             <ul>
               <li><span>MIN</span> - Minutes Played</li>
-              <li><span>PTS</span> - Total Points Scored</li>
-              <li><span>TS%</span> - True Shooting Percentage</li>
-              <li><span>REB</span> - Rebounds</li>
-              <li><span>AST</span> - Assists</li>
-              <li><span>STL</span> - Steals</li>
-              <li><span>BLK</span> - Blocks</li>
-              <li><span>TOV</span> - Turnovers</li>
-              <li><span>PF</span> - Personal Fouls</li>
               <li><span>FT</span> - Free Throws Made/Attempted</li>
+              <li><span>PTS</span> - Total Points Scored</li>
+              <li><span>TOV</span> - Turnovers</li>
               <li><span>FT%</span> - Free Throw Percentage</li>
+              <li><span>TS%</span> - True Shooting Percentage</li>
+              <li><span>PF</span> - Personal Fouls</li>
               <li><span>2PT</span> - 2 Pointers Made/Attempted</li>
+              <li><span>REB</span> - Rebounds</li>
+              <li><span>ORB</span> - Offensive Rebounds</li>
               <li><span>2PT%</span> - 2 Point Percentage</li>
+              <li><span>AST</span> - Assists</li>
+              <li><span>DRB</span> - Defensive Rebounds</li>
               <li><span>3PT</span> - 3 Pointers Made/Attempted</li>
-              <li><span>3PT%</span> - 3 Point Percentage</li>
               <li><span>PER</span> - Player Efficiency Rating</li>
+              <li><span>STL</span> - Steals</li>
+              <li><span>3PT%</span> - 3 Point Percentage</li>
               <li><span>USG%</span> - Usage Percentage</li>
+              <li><span>BLK</span> - Blocks</li>
             </ul>
+          </div>
+        </GameSectionWrapper>
+        <GameSectionWrapper title="Shot Chart" className={styles.sectionWrapper}>
+          <div className={styles.shotChartGrid}>
+            <ShotChart teamName={getTeamName( awayTricode )} shots={shotChart.away} />
+            <ShotChart teamName={getTeamName( homeTricode )} shots={shotChart.home} />
           </div>
         </GameSectionWrapper>
       </section>

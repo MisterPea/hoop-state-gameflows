@@ -2,11 +2,11 @@
   h1 {
     font-size: 1.7rem;
     letter-spacing: -1.5%;
-    font-weight: 500;
+    font-weight: 600;
   }
   .atSpan {
     font-weight: 400;
-    opacity: 0.9;
+    color: var(--card-h4-color);
   }
 }
 
@@ -15,6 +15,6 @@
 }
 
 .score {
-  font-weight: 300;
-  opacity: 0.7;
+  font-weight: 400;
+  color: var(--card-h4-color);
 }

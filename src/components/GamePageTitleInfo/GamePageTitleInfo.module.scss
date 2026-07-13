@@ -4,9 +4,9 @@
   h3 {
     text-transform: uppercase;
     font-size: clamp(0.65rem, 2cqw, 0.75rem);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--game-info-title);
-    letter-spacing: -1.5%;
+    letter-spacing: 0.02em;
     @include tablet-up {
       font-size: 0.75rem;
     }

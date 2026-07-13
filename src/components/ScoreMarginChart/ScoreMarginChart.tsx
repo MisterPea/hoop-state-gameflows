@@ -178,11 +178,12 @@ export default function ScoreMarginChart( props: ScoreMarginChartProps ) {
 
   return (
     <div className={styles.scoreMarginChart}>
-      <div className={styles.teamNames}>
-        <h5>{awayTeam}</h5>
-        <h5>{homeTeam}</h5>
-      </div>
+      <div className={styles.teamNamesSpace}></div>
       <div className={styles.chartPeriods}>
+        <div className={styles.teamChartOverlay}>
+          <h5>{awayTeam}</h5>
+          <h5>{homeTeam}</h5>
+        </div>
         {REGULAR_PERIODS.map( renderPeriod )}
         {overtimePeriods.map( renderPeriod )}
       </div>
