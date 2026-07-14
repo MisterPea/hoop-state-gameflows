@@ -38,4 +38,4 @@
 
   <br />
 
-  <small>**Disclaimer:**<br />Not affiliated with the NBA. Data used for personal/educational purposes.</small>
+  <sub>**Disclaimer:**<br />Not affiliated with the NBA. Data used for personal/educational purposes.</sub>
