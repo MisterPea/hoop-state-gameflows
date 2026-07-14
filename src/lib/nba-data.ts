@@ -667,11 +667,34 @@ export async function getDate( gameId: string ) {
   else return null;
 }
 
+export type StintStats = {
+  twoPointMade: number;
+  twoPointAttempted: number;
+  threePointMade: number;
+  threePointAttempted: number;
+  freeThrowsMade: number;
+  freeThrowsAttempted: number;
+  personalFouls: number;
+};
+
 export type RotationSegment = {
   period: number;
   entrySeconds: number;
   exitSeconds: number;
+  stats: StintStats;
 };
+
+function emptyStintStats(): StintStats {
+  return {
+    twoPointMade: 0,
+    twoPointAttempted: 0,
+    threePointMade: 0,
+    threePointAttempted: 0,
+    freeThrowsMade: 0,
+    freeThrowsAttempted: 0,
+    personalFouls: 0,
+  };
+}
 
 export type PlayerRotation = {
   personId: number;
@@ -811,6 +834,7 @@ type RotationEventRow = {
   person_id: number | null;
   score_home: number | null;
   score_away: number | null;
+  shot_result: string | null;
 };
 
 export async function getPlayerRotations( gameId: string ): Promise<GameRotations> {
@@ -860,15 +884,16 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
   }
 
   const eventRows = ( await db.getAllData(
-    `SELECT action_type, action_sub_type, clock, period, person_id, score_home, score_away
+    `SELECT action_type, action_sub_type, clock, period, person_id, score_home, score_away, shot_result
      FROM game_actions
-     WHERE game_id = ? AND action_type IN ('period', 'substitution', 'game')
+     WHERE game_id = ? AND action_type IN ('period', 'substitution', 'game', '2pt', '3pt', 'freethrow', 'foul')
      ORDER BY order_number ASC`,
     [gameId],
   ) ) as RotationEventRow[];
 
   const onCourt = new Set<number>();
   const segmentStart = new Map<number, { period: number; clock: number; }>();
+  const currentStint = new Map<number, StintStats>();
   let inPeriod = false;
   let maxPeriod = 4;
 
@@ -898,10 +923,12 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
     const entry = segmentStart.get( personId );
     if ( !entry ) return;
     const player = playerMap.get( personId );
+    const stats = currentStint.get( personId ) ?? emptyStintStats();
     if ( player ) {
-      player.segments.push( { period: entry.period, entrySeconds: entry.clock, exitSeconds } );
+      player.segments.push( { period: entry.period, entrySeconds: entry.clock, exitSeconds, stats } );
     }
     segmentStart.delete( personId );
+    currentStint.delete( personId );
   }
 
   function closeLineup( tracker: LineupTracker, list: LineupInterval[], exitSeconds: number, currentDiff: number, teamSign: 1 | -1 ) {
@@ -932,6 +959,7 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
       const dur = periodDuration( period );
       for ( const id of onCourt ) {
         segmentStart.set( id, { period, clock: dur } );
+        currentStint.set( id, emptyStintStats() );
       }
       const scoreDiff = lastScoreHome - lastScoreAway;
       homeLineupTracker = { period, entrySeconds: dur, scoreDiff, lineup: teamRoster( "home" ) };
@@ -967,6 +995,7 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
       onCourt.add( personId );
       if ( inPeriod ) {
         segmentStart.set( personId, { period, clock } );
+        currentStint.set( personId, emptyStintStats() );
         const team = personTeam.get( personId );
         if ( team === "home" && homeLineupTracker ) {
           homeLineupTracker.lineup = teamRoster( "home" );
@@ -974,6 +1003,27 @@ export async function getPlayerRotations( gameId: string ): Promise<GameRotation
           awayLineupTracker.lineup = teamRoster( "away" );
         }
       }
+    } else if ( type === "2pt" && personId != null ) {
+      const stats = currentStint.get( personId );
+      if ( stats ) {
+        stats.twoPointAttempted += 1;
+        if ( event.shot_result === "Made" ) stats.twoPointMade += 1;
+      }
+    } else if ( type === "3pt" && personId != null ) {
+      const stats = currentStint.get( personId );
+      if ( stats ) {
+        stats.threePointAttempted += 1;
+        if ( event.shot_result === "Made" ) stats.threePointMade += 1;
+      }
+    } else if ( type === "freethrow" && personId != null ) {
+      const stats = currentStint.get( personId );
+      if ( stats ) {
+        stats.freeThrowsAttempted += 1;
+        if ( event.shot_result === "Made" ) stats.freeThrowsMade += 1;
+      }
+    } else if ( type === "foul" && subType === "personal" && personId != null ) {
+      const stats = currentStint.get( personId );
+      if ( stats ) stats.personalFouls += 1;
     }
   }
 

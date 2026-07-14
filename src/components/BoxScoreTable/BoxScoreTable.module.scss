@@ -12,7 +12,7 @@
   margin: 0 0 10px;
   padding-bottom: 0.25rem;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--font-size-subhead);
 }
 
 .scrollWrap {
@@ -28,7 +28,7 @@
   white-space: nowrap;
   font-size: clamp(0.6rem, 1.5vw, 0.75rem);
   @include tablet-up {
-    font-size: 0.75rem;
+    font-size: var(--font-size-body);
   }
 
   th,
@@ -43,12 +43,11 @@
     }
   }
 
-
   thead th {
     background-color: var(--foreground);
     color: var(--background);
     font-weight: 600;
-    font-size: 0.65rem;
+    font-size: var(--font-size-body);
     letter-spacing: 0.02em;
   }
 
@@ -95,7 +94,7 @@ thead .playerCol {
 .playerMeta {
   display: block;
   font-weight: 400;
-  font-size: 0.65rem;
+  font-size: var(--font-size-body);
   color: var(--card-h4-color);
 }
 
@@ -104,7 +103,7 @@ thead .playerCol {
   font-style: italic;
   color: var(--card-h4-color);
   font-weight: 400;
-  font-size: 0.4rem;
+  font-size: clamp(0.6rem, 1.5vw, 0.75rem);
   @include tablet-up {
     font-size: unset;
   }

@@ -20,11 +20,19 @@ function periodDuration( period: number ) {
   return period <= 4 ? 720 : 300;
 }
 
+function formatClock( seconds: number ): string {
+  const m = Math.floor( seconds / 60 );
+  const s = Math.floor( seconds % 60 );
+  return `${m}:${s.toString().padStart( 2, "0" )}`;
+}
+
 export default function GameFlowRow( props: GameFlowRowProps ) {
   const { segments, player, minutes, points, rebounds, assists, plusMinus, overtimes, teamColor, teamColorAccent } = props;
-
+  
   const overtimePeriods = Array.from( { length: overtimes }, ( _, i ) => i + 5 );
-
+  
+  let totalFouls = 0;
+  
   function renderPeriod( period: number ) {
     const dur = periodDuration( period );
     const periodSegs = segments.filter( s => s.period === period );
@@ -34,19 +42,37 @@ export default function GameFlowRow( props: GameFlowRowProps ) {
         key={period}
         className={period <= 4 ? styles.regularPeriod : styles.overtimePeriod}
       >
-        {periodSegs.map( ( seg, i ) => (
+        {periodSegs.map( ( seg, i ) => {
+          totalFouls += seg.stats.personalFouls;
+          return (
 
-          <div
-            key={i}
-            className={styles.segment}
-            style={{
-              left: `${( ( dur - seg.entrySeconds ) / dur ) * 100}%`,
-              width: `${( ( seg.entrySeconds - seg.exitSeconds ) / dur ) * 100}%`,
-              backgroundColor: teamColor,
-              borderBottom: `1.5px solid ${teamColorAccent}`
-            }}
-          />
-        ) )}
+            <div
+              key={i}
+              className={styles.segment}
+              style={{
+                left: `${( ( dur - seg.entrySeconds ) / dur ) * 100}%`,
+                width: `${( ( seg.entrySeconds - seg.exitSeconds ) / dur ) * 100}%`,
+                backgroundColor: teamColor,
+                borderBottom: `1.5px solid ${teamColorAccent}`
+              }}
+            >
+              <div className={styles.tooltip}>
+                <div className={styles.tooltipTime}>
+                  {formatClock( seg.entrySeconds )} – {formatClock( seg.exitSeconds )}
+                </div>
+                <div className={styles.tooltipStats}>
+                  <ul>
+                    <li><span>2PT:</span>{`  ${seg.stats.twoPointMade}-${seg.stats.twoPointAttempted}`}</li>
+                    <li><span>3PT:</span>{`  ${seg.stats.threePointMade}-${seg.stats.threePointAttempted}`}</li>
+                    <li><span>FT:</span>{`  ${seg.stats.freeThrowsMade}-${seg.stats.freeThrowsAttempted}`}</li>
+                    <li><span>PF:</span>{`  ${seg.stats.personalFouls}`}</li>
+                    <li><span>PF-G:</span>{`  ${totalFouls}`}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          );
+        } )}
       </div>
     );
   }

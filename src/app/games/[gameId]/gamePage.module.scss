@@ -41,26 +41,27 @@
   }
 }
 
-.boxScoreLegendTitle{
+.boxScoreLegendTitle {
   margin-bottom: 0.5rem;
+  font-size: var(--font-size-subhead);
 }
 
 .boxScoreLegendElements {
   ul {
-    width: 100%;
-    max-width: 600px;
+    width: fit-content;
+    // max-width: 600px;
     display: grid;
-    column-gap: 2rem;
+    column-gap: 1.5rem;
     row-gap: 0.125rem;
     flex-direction: column-reverse;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, auto);
     font-weight: 400;
-    font-size: 0.65rem;
+    font-size: var(--font-size-body);
     span {
       font-weight: 600;
     }
     @include tablet-up {
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, auto);
     }
   }
 }

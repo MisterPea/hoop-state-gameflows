@@ -98,7 +98,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               homeAttempts={summary.homeTwoPointersAttempted}
               homeMade={summary.homeTwoPointersMade}
               includePctBadge
-              includeMadeAmt
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
             />
@@ -111,7 +110,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               homeAttempts={summary.homeThreePointersAttempted}
               homeMade={summary.homeThreePointersMade}
               includePctBadge
-              includeMadeAmt
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
             />
@@ -124,7 +122,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               homeAttempts={summary.homeFreeThrowsAttempted}
               homeMade={summary.homeFreeThrowsMade}
               includePctBadge
-              includeMadeAmt
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
             />
@@ -137,7 +134,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               homeAttempts={summary.homeFastBreakPointsAttempted}
               homeMade={summary.homeFastBreakPointsMade}
               includePctBadge
-              includeMadeAmt
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
             />
@@ -150,7 +146,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               homeAttempts={summary.homePointsInThePaintAttempted}
               homeMade={summary.homePointsInThePaintMade}
               includePctBadge
-              includeMadeAmt
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
             />
@@ -163,7 +158,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               homeAttempts={summary.homeSecondChancePointsAttempted}
               homeMade={summary.homeSecondChancePointsMade}
               includePctBadge
-              includeMadeAmt
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
             />
@@ -175,7 +169,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               homeTricode={homeTricode}
               homeAttempts={summary.homeTurnoversTotal}
               homeMade={summary.homeTurnovers}
-              includeMadeAmt
               includeTotal={false}
               includeMissedAmt
               awayTeamColor={getTeamColor( awayTricode )}
@@ -192,7 +185,6 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
               awayTeamColor={getTeamColor( awayTricode )}
               homeTeamColor={getTeamColor( homeTricode )}
               includeTotal={false}
-              includeMadeAmt
             />
           </div>
         </GameSectionWrapper>

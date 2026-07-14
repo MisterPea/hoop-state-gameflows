@@ -3,43 +3,60 @@
 .shotChart {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  // align-items: center;
+}
+
+.shotChartHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.attemptBarFill {
+  flex: 1;
 }
 
 .teamName {
-  margin: 0 0 10px;
-  padding-bottom: 0.25rem;
   font-weight: 600;
-  font-size: 0.9rem;
-  align-self: flex-start;
+  font-size: var(--font-size-larger);
 }
 
 .shotInfo {
   height: 2.2em;
-  margin-bottom: 5px;
-  font-size: 0.7rem;
+  margin: 10px 0 5px;
+  font-size: var(--font-size-body);
   color: var(--foreground);
   opacity: 0.7;
-  text-align: center;
 }
 
 .court {
   width: 100%;
-  // background-color: #2e9e4f;
-  max-width: 90%;
+  background-color: rgba(219, 167, 121, 0.067);
+  border: 1px solid var(--foreground);
+  border-radius: 5px;
+  // max-width: 90%;
 
   svg {
     display: block;
     width: 100%;
     height: auto;
+    margin-top: -1px;
+    .courtFrame {
+      stroke: var(--foreground);
+      stroke-width: 1px;
+    }
+    .courtFrameBorder {
+      stroke-width: 1px;
+    }
   }
 }
 
 .shotMade {
-  fill: #2e9e4f;
-  stroke: none;
+  fill: var(--background);
+  stroke: rgb(1, 144, 53);
   cursor: pointer;
-  opacity: 0.85;
+  opacity: 0.65;
+  stroke-width: 2.5px;
 
   &:hover {
     opacity: 1;
@@ -47,7 +64,7 @@
 }
 
 .shotMissed {
-  stroke: #d64545;
+  stroke: #f50d0d;
   stroke-width: 1;
   cursor: pointer;
   opacity: 0.85;
@@ -59,17 +76,18 @@
 
 .shotDistanceSelector {
   display: flex;
-  gap: 4px;
-  margin-top: 10px;
+  gap: 5px;
+  margin-bottom: 20px;
 
   button {
-    font-size: 0.65rem;
+    font-size: var(--font-size-body);
     font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 999px;
+    padding: 5px 10px;
+    border-radius: 4px;
     border: 1px solid var(--card-border);
     background-color: var(--card-background);
     color: var(--foreground);
+    // height:2rem;
 
     &:hover {
       background-color: var(--card-hover);

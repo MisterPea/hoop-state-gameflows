@@ -1,10 +1,25 @@
 import type { Metadata } from "next";
 import AppHeader from "@/components/Header/AppHeader";
+import Footer from "@/components/Footer/Footer";
 import "../styles/globals.scss";
 
+const SITE_DESCRIPTION = "In-depth visual breakdowns of NBA games — shot charts, lineups, and scoring trends.";
+
 export const metadata: Metadata = {
-  title: "NBA Game Flow",
-  description: "Static NBA game pages generated from SQLite play-by-play data.",
+  title: "Hoop State Gameflows",
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: "Hoop State Gameflows",
+    description: SITE_DESCRIPTION,
+    siteName: "Hoop State Gameflows",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hoop State Gameflows",
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
@@ -16,7 +31,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AppHeader />
-        {children}
+        <main className="mainContent">{children}</main>
+        <Footer />
       </body>
     </html>
   );

@@ -8,14 +8,14 @@
     color: var(--game-info-title);
     letter-spacing: 0.02em;
     @include tablet-up {
-      font-size: 0.75rem;
+      font-size: var(--font-size-body);
     }
   }
   p {
     font-size: clamp(0.8rem, 3.5cqw, 0.9rem);
     letter-spacing: -1.5%;
     @include tablet-up {
-      font-size: 0.9rem;
+      font-size: var(--font-size-subhead);
     }
   }
   ul {
@@ -24,7 +24,7 @@
     font-size: clamp(0.8rem, 3.5cqw, 0.9rem);
     letter-spacing: -1.5%;
     @include tablet-up {
-      font-size: 0.9rem;
+      font-size: var(--font-size-subhead);
     }
     li {
       // If 4th / alt official

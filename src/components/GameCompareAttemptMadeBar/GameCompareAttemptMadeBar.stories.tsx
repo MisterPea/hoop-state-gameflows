@@ -8,7 +8,6 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {
     includePctBadge: { control: "boolean" },
-    includeMadeAmt: { control: "boolean" },
     includeTotal: { control: "boolean" },
   },
   args: {
@@ -20,7 +19,6 @@ const meta = {
     homeMade: 42,
     chartLabel: undefined,
     includePctBadge: false,
-    includeMadeAmt: false,
     includeTotal: true,
     homeTeamColor: undefined,
     awayTeamColor: undefined,
@@ -37,7 +35,6 @@ export const Default: Story = {
     awayMade: 1.2666666666,
     homeAttempts: 1.416666,
     homeMade: 1.416666,
-    includeMadeAmt: false,
     includeTotal: true,
   }
 };

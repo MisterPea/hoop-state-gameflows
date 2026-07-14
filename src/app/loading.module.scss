@@ -1,0 +1,10 @@
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px 0;
+
+  p {
+    color: var(--card-h4-color);
+    font-size: var(--font-size-subhead);
+  }
+}

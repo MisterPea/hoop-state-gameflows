@@ -24,7 +24,7 @@
   font-weight: 600;
   padding: 4px 0;
   @include tablet-up {
-    font-size: 0.65rem;
+    font-size: var(--font-size-body);
     padding-right: 5px;
   }
 }
@@ -73,7 +73,7 @@
 }
 
 .intervalLabel {
-  font-size: 0.65rem;
+  font-size: var(--font-size-body);
   font-weight: 600;
   color:#fff;
   white-space: nowrap;
@@ -99,7 +99,7 @@
 }
 
 .tooltipTime {
-  font-size: 0.65rem;
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--foreground);
   text-align: center;
@@ -113,7 +113,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 0.7rem;
+  font-size: var(--font-size-body);
   color: var(--foreground);
 }
 
@@ -128,7 +128,7 @@
   font-size: clamp(5px, 1.5vw, 1rem);
   @include tablet-up {
     background-color: color-mix(in srgb, var(--foreground) 50%, transparent);
-    font-size: 0.65rem;
+    font-size: var(--font-size-body);
   }
   &::before {
     content: "";

@@ -1,0 +1,95 @@
+@use "../../styles/mixins" as *;
+
+.barWrapInfo {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  column-gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+  &:last-child {
+    margin-top: 5px;
+  }
+}
+
+.barTrack {
+  display: flex;
+  align-items: center;
+  --num-reserve: 2.5rem;
+}
+
+.barWrap {
+  position: relative;
+  display: flex;
+  flex: none;
+}
+
+.tricodeText {
+  font-size: var(--font-size-body);
+  font-weight: 500;
+}
+.barMain {
+  background-color: var(--foreground);
+  // height: 15px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--background);
+  font-size: var(--font-size-body);
+  @include tablet-up {
+    font-size: 0.8rem;
+  }
+}
+
+.pctCalloutTop,
+.pctCalloutBottom {
+  font-size: var(--font-size-body);
+  font-weight: 600;
+  height: 0.75rem;
+  position: absolute;
+  transform: translateX(-1.5rem);
+}
+.pctCalloutTop {
+  top: -1rem;
+}
+.pctCalloutBottom {
+  bottom: -1rem;
+}
+
+.totalNum {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--num-reserve);
+  white-space: nowrap;
+  font-weight: 600;
+  height: 100%rem;
+  padding-left: 8px;
+  font-size: var(--font-size-body);
+  @include tablet-up {
+    padding-left: 10px;
+    font-size: var(--font-size-body);
+  }
+}
+
+.missedBar {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-top: 2px dashed red;
+  border-right: 2px dashed red;
+  border-bottom: 2px dashed red;
+}
+
+.includeMissed {
+  margin-top: 0.25px;
+  line-height: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+  // height: 14.5px;
+  text-align: center;
+  padding: 0;
+  border-top: 0.5px solid var(--foreground);
+  border-right: 0.5px solid var(--foreground);
+  border-bottom: 0.5px solid var(--foreground);
+  font-size: var(--font-size-body);
+  @include tablet-up {
+    font-size: 0.8rem;
+  }
+}

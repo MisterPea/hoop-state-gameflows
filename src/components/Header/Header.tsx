@@ -14,3 +14,4 @@ export default function Header( { isGamePage = true }: HeaderProps ) {
     </header>
   );
 }
+

@@ -26,7 +26,7 @@
 }
 
 .title {
-  font-size: 1rem;
+  font-size: var(--font-size-heading);
   font-weight: 400;
   text-align: left;
   @include tablet-up {
@@ -36,12 +36,11 @@
 
 .score {
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--card-h4-color);
   text-align: right;
   flex-shrink: 0;
   white-space: nowrap;
-
   margin-left: 5px;
   @include tablet-up {
     font-size: 0.9375rem;
@@ -60,7 +59,7 @@
     opacity: 0.6;
     flex-shrink: 1;
     font-weight: 400;
-    font-size: 0.75rem;
+    font-size: var(--font-size-body);
     letter-spacing: -2%;
     min-width: 0;
     overflow: hidden;
@@ -89,7 +88,7 @@
     opacity: 0.8;
   }
   @include tablet-up {
-    font-size: 0.9rem;
+    font-size: var(--font-size-subhead);
   }
 }
 
@@ -119,7 +118,7 @@
 }
 
 .winArrow {
-  font-size: 0.65rem;
+  font-size: var(--font-size-body);
   margin-left: 2px;
   opacity: 0;
 }
@@ -137,7 +136,7 @@
   opacity: 0.6;
   flex-shrink: 1;
   font-weight: 400;
-  height: clamp(0.7rem, 2.65cqw, 0.8rem);;
+  height: clamp(0.7rem, 2.65cqw, 0.8rem);
   font-size: clamp(0.6rem, 2.5cqw, 0.75rem);
   letter-spacing: -2%;
   min-width: 0;
@@ -145,6 +144,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   @include tablet-up {
-    font-size: 0.75rem;
+    font-size: var(--font-size-body);
   }
 }

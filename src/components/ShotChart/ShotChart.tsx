@@ -3,15 +3,16 @@
 import { useState } from "react";
 import type { ShotChartPoint, ShotZone } from "@/lib/nba-data";
 import styles from "./ShotChart.module.scss";
+import AttemptMadeBarRow from "../AttemptMadeBarRow/AttemptMadeBarRow";
 
 type ShotChartProps = {
   teamName: string;
   shots: ShotChartPoint[];
 };
 
-const COURT_WIDTH = 205;
-const COURT_HEIGHT = 193;
-const MARKER_RADIUS = 2.4;
+const COURT_WIDTH = 377.36;
+const COURT_HEIGHT = 352.19;
+const MARKER_RADIUS = 4;
 
 const ZONE_FILTERS: { label: string; zone: ShotZone | "all"; }[] = [
   { label: "All", zone: "all" },
@@ -54,11 +55,30 @@ function CourtSvg( { shots, onHoverShot, onLeaveShot }: CourtSvgProps ) {
       fill="none"
       viewBox={`0 0 ${COURT_WIDTH} ${COURT_HEIGHT}`}
     >
-      <g stroke="#000">
-        <path d="M205 0H0v193h205z"></path>
-        <path d="M135.3 0H69.7v78.021h65.6z"></path>
-        <path d="M102.5 102.66c13.586 0 24.6-11.031 24.6-24.639s-11.014-24.638-24.6-24.638-24.6 11.031-24.6 24.638 11.014 24.639 24.6 24.639ZM90.2 16.426h24.6m-12.3 8.212a3.08 3.08 0 0 0 3.075-3.08c0-1.7-1.377-3.08-3.075-3.08a3.08 3.08 0 0 0-3.075 3.08 3.08 3.08 0 0 0 3.075 3.08Z"></path>
-        <path d="M86.1 21.559c0 4.356 1.728 8.534 4.804 11.614a16.4 16.4 0 0 0 11.596 4.811c4.35 0 8.521-1.73 11.597-4.81a16.44 16.44 0 0 0 4.803-11.615M12.3 0v58.31M192.7 0v58.31m-180.4 0a97.5 97.5 0 0 0 35.842 44.174 97.27 97.27 0 0 0 54.358 16.61 97.27 97.27 0 0 0 54.358-16.61A97.5 97.5 0 0 0 192.7 58.311M77.9 193a24.66 24.66 0 0 1 7.205-17.422 24.58 24.58 0 0 1 17.395-7.216 24.6 24.6 0 0 1 17.395 7.216A24.66 24.66 0 0 1 127.1 193"></path>
+      <g className={styles.courtFrame}>
+        <rect x="116.3" y="13.48" width="144.76" height="119.05" transform="translate(261.68 -115.67) rotate(90)"></rect>
+        <circle cx="188.68" cy="41.04" r="5.99"></circle>
+        <path d="M233.82,145.39h-90.29c0,25.07,20.21,45.4,45.15,45.4s45.15-20.33,45.15-45.4Z"></path>
+        <path d="M143.7,141.39c-.11,1.32-.17,2.65-.17,4h4"></path>
+        <line x1="155.01" y1="145.39" x2="226.08" y2="145.39" strokeDasharray="7.48 7.48"></line>
+        <path d="M229.82,145.39h4c0-1.35-.06-2.68-.17-4"></path>
+        <path d="M232.29,133.62c-5.16-19.37-22.73-33.63-43.61-33.63-22.25,0-40.74,16.18-44.46,37.48" strokeDasharray="7.89 7.89"></path>
+        <path d="M169.55,353.42c0-10.62,8.57-19.24,19.13-19.24s19.13,8.61,19.13,19.24c0,.05,0,.1,0,.15h26.02c0-25.07-20.21-45.4-45.15-45.4s-45.15,20.33-45.15,45.4h26.02s0-.1,0-.15Z"></path>
+        <path d="M188.68,334.18c-10.57,0-19.13,8.61-19.13,19.24,0,.05,0,.1,0,.15h38.25s0-.1,0-.15c0-10.62-8.57-19.24-19.13-19.24Z"></path>
+        <line x1="377.26" y1="214.52" x2="355.53" y2="214.52"></line>
+        <line x1="22.88" y1="214.52" x2="0" y2="214.52"></line>
+        <line x1="253.88" y1="84.09" x2="248.73" y2="84.09"></line>
+        <line x1="253.88" y1="107.15" x2="248.73" y2="107.15"></line>
+        <line x1="253.88" y1="61.03" x2="248.73" y2="61.03"></line>
+        <line x1="253.88" y1="55.62" x2="248.73" y2="55.62"></line>
+        <line x1="129.68" y1="84.09" x2="124.54" y2="84.09"></line>
+        <line x1="129.68" y1="107.15" x2="124.54" y2="107.15"></line>
+        <line x1="129.68" y1="61.03" x2="124.54" y2="61.03"></line>
+        <line x1="129.68" y1="55.62" x2="124.54" y2="55.62"></line>
+        <path d="M23.65,109.2c27.1,65.05,90.39,110.78,165.26,110.78s137.71-45.73,164.81-110.78"></path>
+        <path d="M353.71,109.2c.06-.15.12-.31.19-.46V.62H23.46v108.12c.06.15.12.31.19.46"></path>
+        <path d="M157.29,32.71v17.89c9.34,28.65,53.27,29.71,62.78,0v-17.89"></path>
+        <line x1="211.33" y1="30.67" x2="166.03" y2="30.67"></line>
       </g>
       <g>
         {shots.map( shot => {
@@ -105,13 +125,21 @@ export default function ShotChart( { teamName, shots }: ShotChartProps ) {
 
   const visibleShots = zone === "all" ? shots : shots.filter( shot => shot.zone === zone );
 
+  console.log( visibleShots );
+
   return (
     <div className={styles.shotChart}>
-      <h3 className={styles.teamName}>{teamName}</h3>
+      <header className={styles.shotChartHeader}>
+        <h3 className={styles.teamName}>{teamName}</h3>
+        <AttemptMadeBarRow
+          className={styles.attemptBarFill}
+          attempts={visibleShots.length}
+          made={visibleShots.filter( ( el ) => el.made ).length}
+          scale={1}
+          includePctBadge
+        />
+      </header>
       <p ref={el => { shotInfoEl = el; }} className={styles.shotInfo}>Hover a shot for details</p>
-      <div className={styles.court}>
-        <CourtSvg shots={visibleShots} onHoverShot={handleHoverShot} onLeaveShot={handleLeaveShot} />
-      </div>
       <div className={styles.shotDistanceSelector}>
         {ZONE_FILTERS.map( filter => (
           <button
@@ -124,6 +152,11 @@ export default function ShotChart( { teamName, shots }: ShotChartProps ) {
           </button>
         ) )}
       </div>
+      <div className={styles.court}>
+        <CourtSvg shots={visibleShots} onHoverShot={handleHoverShot} onLeaveShot={handleLeaveShot} />
+      </div>
+
+
     </div>
   );
 }

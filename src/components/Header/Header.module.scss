@@ -77,3 +77,14 @@
     font-size: 0.6rem;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .mainPage {
+    animation: none;
+
+    h1,
+    h2 {
+      animation: none;
+    }
+  }
+}

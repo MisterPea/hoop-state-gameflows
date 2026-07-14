@@ -11,7 +11,7 @@
   }
   .dateTitle {
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: var(--font-size-subhead);
     color: var(--foreground);
     margin: 0 2px 5px;
     opacity: 0.8;
