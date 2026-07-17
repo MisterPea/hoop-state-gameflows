@@ -2,7 +2,7 @@
 
   A visual, stats-first look at NBA games — lineup rotations, score-margin trends, shot charts, and full box score.
 
-  **[Live site →](#)** _(URL)_
+  **Live site →** _[https://hoopstate.net](https://hoopstate.net/)_
 
   <br />
 
