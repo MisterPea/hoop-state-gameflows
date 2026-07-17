@@ -6,6 +6,20 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+# better-sqlite3 is a native module (ABI-specific per Node major). The build
+# reads the DB via generateStaticParams, and `npm run build` has no prebuild
+# version guard (only predev/preinstall do) — so without this, a build run
+# under the wrong Node fails with a NODE_MODULE_VERSION mismatch instead of
+# a clear error. Reads the version from .nvmrc.
+export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [[ ! -s "$NVM_DIR/nvm.sh" ]]; then
+  echo "nvm not found at $NVM_DIR/nvm.sh — install nvm or adjust NVM_DIR." >&2
+  exit 1
+fi
+# shellcheck disable=SC1091
+source "$NVM_DIR/nvm.sh"
+nvm use
+
 SKIP_CONFIRM=false
 for arg in "$@"; do
   case "$arg" in
