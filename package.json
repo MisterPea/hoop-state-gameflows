@@ -10,13 +10,18 @@
     "check:node": "node ./scripts/check-node-version.mjs",
     "predev": "node ./scripts/check-node-version.mjs",
     "preinstall": "node ./scripts/check-node-version.mjs",
-    "dev": "next dev", 
+    "dev": "next dev",
     "build": "next build",
+    "postbuild": "node ./scripts/prune-static-export.mjs",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "e2e": "npm run build && npm run test:e2e",
+    "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {
     "@misterpea/sqlite-worker-db": "^0.1.5",
@@ -26,12 +31,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@playwright/test": "^1.61.1",
     "@storybook/nextjs-vite": "^10.4.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "sass": "^1.101.0",
+    "serve": "^14.2.6",
     "storybook": "^10.4.6",
     "typescript": "^5",
     "vite": "^8.0.16"

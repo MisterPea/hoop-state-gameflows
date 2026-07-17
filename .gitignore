@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
 
 # next.js
 /.next/
@@ -32,9 +36,13 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.deploy.example
 
 # vercel
 .vercel
+
+# s3/cloudfront test page
+/assets/index.html
 
 # typescript
 *.tsbuildinfo
@@ -42,3 +50,4 @@ next-env.d.ts
 
 *storybook.log
 storybook-static
+.env.deploy.example

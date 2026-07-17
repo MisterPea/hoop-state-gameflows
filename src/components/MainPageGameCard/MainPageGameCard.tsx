@@ -32,6 +32,7 @@ export default function MainPageGameCard( props: GameCardProps ) {
       className={`${styles.gameCard}`}
       href={`/games/${gameId}`}
       target="_blank"
+      prefetch={false}
     >
       <div className={styles.teamCard}>
         <div className={styles.teamHolder}>
