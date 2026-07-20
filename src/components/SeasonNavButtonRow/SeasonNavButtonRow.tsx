@@ -67,7 +67,9 @@ export default function SeasonNavButtonRow( {
   // so the selection doesn't go stale.
   // biome-ignore lint/correctness/useExhaustiveDependencies: currentItem/currSeasonSuffix/seasons are derived from normalizedPathname or items each render — depending on them too would refire this every render.
   useEffect( () => {
+    console.log("EFFECT_A run", { normalizedPathname, currentItem: currentItem?.href, currSeasonSuffix: currSeasonSuffix?.href });
     if ( currentItem && currentItem.href !== currSeasonSuffix?.href ) {
+      console.log("EFFECT_A setState", { to: currentItem.href });
       setSeasonYear( currentItem.season );
       setCurrSeasonSuffix(
         seasons[currentItem.season]?.find(
@@ -83,15 +85,24 @@ export default function SeasonNavButtonRow( {
   // the click handlers do directly — keeps the two rows and the route in
   // sync no matter which one changed. Skip the first run so mounting on an
   // already-matching route doesn't trigger a redundant push.
+  // normalizedPathname deliberately excluded from deps: this effect must
+  // only fire when the user changes currSeasonSuffix directly, not whenever
+  // the URL changes externally (back/forward, etc). The effect above resyncs
+  // state from the URL in that case; if this effect also re-armed on
+  // pathname changes, both effects fire in the same commit against stale
+  // closures and fight each other, pushing the URL back and forth in a loop.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: see above.
   useEffect( () => {
+    console.log("EFFECT_B run", { normalizedPathname, currSeasonSuffix: currSeasonSuffix?.href, isFirst: isFirstRender.current });
     if ( isFirstRender.current ) {
       isFirstRender.current = false;
       return;
     }
     if ( currSeasonSuffix?.href && currSeasonSuffix.href !== normalizedPathname ) {
+      console.log("EFFECT_B push", { to: currSeasonSuffix.href });
       router.push( currSeasonSuffix.href );
     }
-  }, [currSeasonSuffix, router, normalizedPathname] );
+  }, [currSeasonSuffix, router] );
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: pathname isn't read here, it's the trigger to re-scroll the selected item into view after navigation.
   useEffect( () => {
@@ -140,6 +151,7 @@ export default function SeasonNavButtonRow( {
               label={info.suffix}
               selected={info.href === currSeasonSuffix?.href}
               onClick={() => handleSeasonSuffixChange( info )}
+              href={info.href}
             />
           </li>
         ) )}

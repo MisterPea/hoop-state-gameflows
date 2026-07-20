@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import AppHeader from "@/components/Header/AppHeader";
 import Footer from "@/components/Footer/Footer";
 import "../styles/globals.scss";
@@ -33,6 +34,11 @@ export default function RootLayout({
         <AppHeader />
         <main className="mainContent">{children}</main>
         <Footer />
+        <Script
+          src="https://analytics.hoopstate.net/script.js"
+          data-website-id="7e114cfd-b360-40f2-a931-e201ffdcd60a"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
