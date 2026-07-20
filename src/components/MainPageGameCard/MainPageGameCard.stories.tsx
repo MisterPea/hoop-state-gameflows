@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import MainPageGameCard from "./MainPageGameCard";
 
 const meta = {
-  title: "Components/MainPageGameCard",
+  title: "Components/Seasons/MainPageGameCard",
   component: MainPageGameCard,
   tags: ["autodocs"],
   args: {
@@ -48,6 +48,25 @@ export const SingleLabel: Story = {
     gameLabel: 'AWS NBA Rivals Week',
     gameSubLabel: null
   },
+};
+
+export const RecordFallback: Story = {
+  args: {
+    awayPoints: 108,
+    awayTeam: 'Houston',
+    awayTricode: 'HOU',
+    awayWins: 10,
+    awayLosses: 12,
+    gameDate: '2025-12-15',
+    gameId: '0022500345',
+    homePoints: 101,
+    homeTeam: 'San Antonio',
+    homeTricode: 'SAS',
+    homeWins: 14,
+    homeLosses: 9,
+    gameLabel: null,
+    gameSubLabel: null
+  }
 };
 
 export const PlayIn: Story = {

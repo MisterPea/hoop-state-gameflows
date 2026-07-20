@@ -21,7 +21,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "e2e": "npm run build && npm run test:e2e",
-    "deploy": "bash scripts/deploy.sh"
+    "deploy": "bash scripts/deploy.sh",
+    "deploy:storybook": "bash scripts/deploy-storybook.sh"
   },
   "dependencies": {
     "@misterpea/sqlite-worker-db": "^0.1.5",

@@ -40,7 +40,7 @@ function maxAwayLead( points: ScoreMarginPoint[] ) {
 }
 
 const meta = {
-  title: "Components/ScoreMarginChart",
+  title: "Components/Game/ScoreMarginChart",
   component: ScoreMarginChart,
   tags: ["autodocs"],
   args: {

@@ -18,11 +18,17 @@ export default function MainPageDateGameSection( { gamesData }: Props ) {
                 <li key={`${date}-${game.gameId}`} className={styles.gameDateSectionLi}>
                   <MainPageGameCard
                     homeTeam={game.homeTeam}
+                    homeTricode={game.homeTricode}
                     homePoints={game.homePoints}
                     homeSeed={game.homeSeed}
+                    homeWins={game.homeWins}
+                    homeLosses={game.homeLosses}
                     awayTeam={game.awayTeam}
+                    awayTricode={game.awayTricode}
                     awayPoints={game.awayPoints}
                     awaySeed={game.awaySeed}
+                    awayWins={game.awayWins}
+                    awayLosses={game.awayLosses}
                     gameId={game.gameId}
                     gameLabel={game.gameLabel}
                     gameSubLabel={game.gameSubLabel}

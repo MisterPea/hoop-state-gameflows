@@ -2,13 +2,13 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import SeasonNavButton from "./SeasonNavButton";
 
 const meta = {
-  title: "Components/SeasonNavButton",
+  title: "Components/Seasons/SeasonNavButton",
   component: SeasonNavButton,
   tags: ["autodocs"],
   args: {
-    href: "/seasons/2025-26-playoffs",
-    seasonTitle: "2025-26 Playoffs",
+    label: "2025-26 Playoffs",
     selected: false,
+    onClick: () => {},
   },
 } satisfies Meta<typeof SeasonNavButton>;
 

@@ -2,10 +2,10 @@
 
 .seasonRowNav {
   display: flex;
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+
   position: sticky;
   top: var(--header-height-expanded);
   z-index: 999;
@@ -35,5 +35,18 @@
   gap: 20px;
   li {
     padding: 5px 0;
+  }
+}
+
+.upperSeasonNav,
+.lowerSeasonNav {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  display: flex;
+  gap: 1rem;
+  @include tablet-up {
+    width: unset;
   }
 }

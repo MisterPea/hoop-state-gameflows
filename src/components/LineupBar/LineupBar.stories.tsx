@@ -19,7 +19,7 @@ const bench = [
 ];
 
 const meta = {
-  title: "Components/LineupBar",
+  title: "Components/Game/LineupBar",
   component: LineupBar,
   tags: ["autodocs"],
   decorators: [

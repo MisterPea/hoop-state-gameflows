@@ -125,8 +125,6 @@ export default function ShotChart( { teamName, shots }: ShotChartProps ) {
 
   const visibleShots = zone === "all" ? shots : shots.filter( shot => shot.zone === zone );
 
-  console.log( visibleShots );
-
   return (
     <div className={styles.shotChart}>
       <header className={styles.shotChartHeader}>

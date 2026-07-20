@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import GameFlowRow from "./GameFlowRow";
 
 const meta = {
-  title: "Components/GameFlowRow",
+  title: "Components/Game/GameFlowRow",
   component: GameFlowRow,
   tags: ["autodocs"],
   args: {
@@ -35,6 +35,13 @@ const meta = {
       },
     ],
   },
+  decorators: [
+    ( Story ) => (
+      <div style={{ padding: "100px 20px 20px" }}>
+        <Story />
+      </div>
+    )
+  ]
 } satisfies Meta<typeof GameFlowRow>;
 
 export default meta;

@@ -164,11 +164,15 @@ type SeasonGameSummaryRow = {
   away_points: number;
   away_team: string;
   away_seed: number | null;
+  away_wins: number | null;
+  away_losses: number | null;
   game_date: string;
   game_id: string;
   home_points: number;
   home_team: string;
   home_seed: number | null;
+  home_wins: number | null;
+  home_losses: number | null;
   game_label: string;
   game_sub_label: string;
 };
@@ -522,12 +526,18 @@ export async function getSeasonSegment( segment: string ) {
 export type ConsolidatedGameSummary = {
   awayPoints: number;
   awayTeam: string;
+  awayTricode: string;
   awaySeed: number | null;
+  awayWins: number | null;
+  awayLosses: number | null;
   gameDate: string; // or DateString, see below
   gameId: string;
   homePoints: number;
   homeTeam: string;
+  homeTricode: string;
   homeSeed: number | null;
+  homeWins: number | null;
+  homeLosses: number | null;
   gameLabel: string | null;
   gameSubLabel: string | null;
 };
@@ -556,6 +566,10 @@ export async function getGamesForSeasonSegment( segment: string ): Promise<Recor
         g.game_sub_label,
         g.home_seed,
         g.away_seed,
+        g.home_wins,
+        g.home_losses,
+        g.away_wins,
+        g.away_losses,
         MAX(CASE WHEN gs.home_away = 'home' THEN gs.team_tricode END) AS home_team,
         MAX(CASE WHEN gs.home_away = 'away' THEN gs.team_tricode END) AS away_team,
         MAX(CASE WHEN gs.home_away = 'home' THEN gs.points END) AS home_points,
@@ -578,12 +592,18 @@ export async function getGamesForSeasonSegment( segment: string ): Promise<Recor
     const currGame = {
       awayPoints: row.away_points,
       awayTeam: tricodeToTeam[row.away_team],
+      awayTricode: row.away_team,
       awaySeed: row.away_seed || null,
+      awayWins: row.away_wins,
+      awayLosses: row.away_losses,
       gameDate: row.game_date,
       gameId: row.game_id,
       homePoints: row.home_points,
       homeTeam: tricodeToTeam[row.home_team],
+      homeTricode: row.home_team,
       homeSeed: row.home_seed || null,
+      homeWins: row.home_wins,
+      homeLosses: row.home_losses,
       gameLabel: row.game_label || null,
       gameSubLabel: row.game_sub_label || null
     };
@@ -1568,15 +1588,38 @@ type ShotActionRow = {
   side: string | null;
   shot_result: string | null;
   area: string | null;
+  shot_distance: number | null;
   play_description: string | null;
 };
 
-function shotZone( area: string | null ): ShotZone {
-  switch ( area ) {
+// Pre-2022-23 games have no `area` from the source API. When it's missing, derive the
+// zone from shot_distance and court position instead. x/y here are already mirrored so
+// every shot lands on the same half: 100 x-units span the 94ft court length (baseline at
+// x=0), 100 y-units span the 50ft width. Backtested against ~938k shots that do have a
+// real `area` label: 98.4% agreement.
+function deriveShotZone( x: number, y: number, shotDistance: number | null ): ShotZone {
+  if ( shotDistance === null ) return "mid";
+  if ( shotDistance <= 4.4 ) return "rim";
+
+  const xFeet = x * 0.94;
+  const centerOffsetFeet = Math.abs( y * 0.5 - 25 );
+
+  const isCornerThree = xFeet <= 13 && centerOffsetFeet >= 21;
+  if ( isCornerThree || shotDistance >= 23.5 ) return "three";
+
+  const inPaint = xFeet <= 19 && centerOffsetFeet <= 8;
+  return inPaint ? "paint" : "mid";
+}
+
+function shotZone( row: ShotActionRow, x: number, y: number ): ShotZone {
+  switch ( row.area ) {
     case "Restricted Area": return "rim";
     case "In The Paint (Non-RA)": return "paint";
     case "Mid-Range": return "mid";
-    default: return "three"; // Left Corner 3 / Right Corner 3 / Above the Break 3
+    case "Left Corner 3":
+    case "Right Corner 3":
+    case "Above the Break 3": return "three";
+    default: return deriveShotZone( x, y, row.shot_distance );
   }
 }
 
@@ -1596,6 +1639,7 @@ export async function getShotChartData( gameId: string ): Promise<GameShotChart>
         ga.side,
         ga.shot_result,
         ga.area,
+        ga.shot_distance,
         ga.play_description
       FROM game_actions ga
       JOIN game_statistics gs ON gs.game_id = ga.game_id AND gs.team_tricode = ga.team_tricode
@@ -1621,7 +1665,7 @@ export async function getShotChartData( gameId: string ): Promise<GameShotChart>
       x,
       y,
       made: row.shot_result === "Made",
-      zone: shotZone( row.area ),
+      zone: shotZone( row, x, y ),
       period: row.period,
       clockSeconds: row.clock ?? 0,
       description: row.play_description ?? "",

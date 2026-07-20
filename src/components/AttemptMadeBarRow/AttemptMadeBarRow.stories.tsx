@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import AttemptMadeBarRow from "./AttemptMadeBarRow";
 
 const meta = {
-  title: "Components/AttemptMadeBarRow",
+  title: "Components/Game/AttemptMadeBarRow",
   component: AttemptMadeBarRow,
   tags: ["autodocs"],
   argTypes: {

@@ -72,7 +72,11 @@ echo "==> E2E (playwright, against the just-built out/)"
 CI=true npx playwright test
 
 echo "==> Uploading out/ to s3://$S3_BUCKET"
-aws s3 sync out/ "s3://$S3_BUCKET" --delete "${AWS_ARGS[@]}"
+# --size-only: every build gives every output file a fresh mtime, so plain
+# `s3 sync` (size+mtime) would re-PUT the whole site on every deploy even
+# when content is unchanged. Compare by size instead so untouched pages are
+# skipped. Tradeoff: a same-size content change (rare) won't be re-uploaded.
+aws s3 sync out/ "s3://$S3_BUCKET" --delete --size-only "${AWS_ARGS[@]}"
 
 echo "==> Invalidating CloudFront distribution $CLOUDFRONT_DISTRIBUTION_ID"
 aws cloudfront create-invalidation \
