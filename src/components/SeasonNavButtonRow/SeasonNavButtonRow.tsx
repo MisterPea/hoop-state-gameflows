@@ -25,8 +25,8 @@ export default function SeasonNavButtonRow( {
   const pathname = usePathname();
   const router = useRouter();
   const selectedRef = useRef<HTMLLIElement>( null );
-  const isFirstRender = useRef( true );
 
+  // Break seasons into YYYY-YY keys with arrays of potential suffixes (playoffs, nba-cup, etc)
   const seasons: { [key: string]: SeasonInfo[]; } = {};
   if ( Object.keys( seasons ).length === 0 && items ) {
     for ( const { href, label, season } of items ) {
@@ -50,6 +50,8 @@ export default function SeasonNavButtonRow( {
   // Land on the row reflecting the current route (if any) instead of always
   // defaulting to the first year/suffix — otherwise the nav effect below
   // would immediately redirect away from wherever the user landed.
+
+  // Find current pathname
   const currentItem = items.find( ( item ) => item.href === normalizedPathname );
   const defaultYear = currentItem?.season ?? Object.keys( seasons )[0] ?? "";
   const defaultSuffix = currentItem
@@ -57,55 +59,29 @@ export default function SeasonNavButtonRow( {
     : seasons[defaultYear]?.[0];
 
   const [seasonYear, setSeasonYear] = useState<string>( defaultYear );
-  const [currSeasonSuffix, setCurrSeasonSuffix] = useState<
-    SeasonInfo | undefined
-  >( defaultSuffix );
-
-  // This nav lives in seasons/layout.tsx so it stays mounted across route
-  // changes — useState's initial value only ever applies once. Resync
-  // whenever the route changes underneath it (pasted URL, back/forward)
-  // so the selection doesn't go stale.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: currentItem/currSeasonSuffix/seasons are derived from normalizedPathname or items each render — depending on them too would refire this every render.
-  useEffect( () => {
-    console.log("EFFECT_A run", { normalizedPathname, currentItem: currentItem?.href, currSeasonSuffix: currSeasonSuffix?.href });
-    if ( currentItem && currentItem.href !== currSeasonSuffix?.href ) {
-      console.log("EFFECT_A setState", { to: currentItem.href });
-      setSeasonYear( currentItem.season );
-      setCurrSeasonSuffix(
-        seasons[currentItem.season]?.find(
-          ( { href } ) => href === currentItem.href,
-        ),
-      );
-    }
-  }, [normalizedPathname] );
-
+  const [currSeasonSuffix, setCurrSeasonSuffix] = useState<SeasonInfo | undefined>( defaultSuffix );
   const seasonSuffixes = seasons[seasonYear] ?? [];
 
-  // Navigation is a side effect of the year/suffix selection, not something
-  // the click handlers do directly — keeps the two rows and the route in
-  // sync no matter which one changed. Skip the first run so mounting on an
-  // already-matching route doesn't trigger a redundant push.
-  // normalizedPathname deliberately excluded from deps: this effect must
-  // only fire when the user changes currSeasonSuffix directly, not whenever
-  // the URL changes externally (back/forward, etc). The effect above resyncs
-  // state from the URL in that case; if this effect also re-armed on
-  // pathname changes, both effects fire in the same commit against stale
-  // closures and fight each other, pushing the URL back and forth in a loop.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: see above.
+  // This captures button presses and advances the route (does not capture back/forward browser clicks)
   useEffect( () => {
-    console.log("EFFECT_B run", { normalizedPathname, currSeasonSuffix: currSeasonSuffix?.href, isFirst: isFirstRender.current });
-    if ( isFirstRender.current ) {
-      isFirstRender.current = false;
-      return;
-    }
-    if ( currSeasonSuffix?.href && currSeasonSuffix.href !== normalizedPathname ) {
-      console.log("EFFECT_B push", { to: currSeasonSuffix.href });
-      router.push( currSeasonSuffix.href );
-    }
-  }, [currSeasonSuffix, router] );
+    let nextRoute = pathname;
+    if ( currSeasonSuffix ) nextRoute = `/seasons/${seasonYear}-${currSeasonSuffix.suffix.replaceAll( ' ', '-' ).toLowerCase()}`;
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: pathname isn't read here, it's the trigger to re-scroll the selected item into view after navigation.
+    // Get valid route and push new route
+    nextRoute = getValidRoute( seasonYear, currSeasonSuffix?.suffix || null );
+    router.push( nextRoute );
+
+  }, [currSeasonSuffix?.href, seasonYear] );
+
+  // To capture back/forward button clicks, we nee to derive the path parts from the url
+  // The duplicate state logic will not fire unless the new value is different
   useEffect( () => {
+    // derive route from url
+    const year = pathname.slice( 9, 16 );
+    const suffix = seasons[year].filter( ( { href } ) => href === normalizedPathname )[0];
+    setSeasonYear( year );
+    setCurrSeasonSuffix( suffix );
+
     selectedRef.current?.scrollIntoView( {
       behavior: "smooth",
       block: "nearest",
@@ -113,19 +89,38 @@ export default function SeasonNavButtonRow( {
     } );
   }, [pathname] );
 
-  function handleSeasonYearChange( year: string ) {
-    setSeasonYear( year );
-    // Keep the current suffix selection (e.g. "Playoffs") if the new year
-    // has one by that name; otherwise fall back to its first option.
-    const matches = seasons[year] ?? [];
-    const preserved =
-      matches.find( ( { suffix } ) => suffix === currSeasonSuffix?.suffix ) ??
-      matches[0];
-    setCurrSeasonSuffix( preserved );
+  function handleNavigation( year: string | null, suffixObj: SeasonInfo | null ) {
+    if ( year ) setSeasonYear( year );
+    if ( suffixObj ) setCurrSeasonSuffix( suffixObj );
   }
 
-  function handleSeasonSuffixChange( info: SeasonInfo ) {
-    setCurrSeasonSuffix( info );
+  // Takes route constructors (year, suffix) - returns valid route 
+  //
+  // We need to figure out the possibilities for mouseover preloads
+  // So, if we have 2021-22-regular-season selected
+  // we could potentially get 2021-22-play-in or 2021-22-playoffs *or*
+  // 2025-26-regular-season, 2024-25-regular-season, etc.
+  // This is recalculated every state change.
+  function getValidRoute( year: string | null, suffix: string | null ) {
+    let route = '';
+    if ( year ) {
+      route = seasons[year].filter( ( { suffix } ) => suffix === currSeasonSuffix?.suffix )[0]?.href;
+    }
+    if ( suffix ) {
+      route = `/seasons/${seasonYear}-${suffix.replaceAll( ' ', '-' ).toLowerCase()}`;
+    }
+
+    // if it's not a year change, we don't have to check the route validity
+    // as our suffix selections are based off the highlighted year
+    if ( !year ) return route;
+
+    const index = seasons[year]?.findIndex( ( { href } ) => {
+      return href === route;
+    } );
+    if ( index === -1 ) {
+      route = seasons[year][0].href;
+    };
+    return route;
   }
 
   return (
@@ -134,9 +129,10 @@ export default function SeasonNavButtonRow( {
         {Object.keys( seasons ).map( ( year ) => (
           <li key={year}>
             <SeasonButton
-              label={`${year} Season`}
-              selected={year === seasonYear}
-              onClick={() => handleSeasonYearChange( year )}
+              label={year}
+              selected={seasonYear === year}
+              onClick={() => handleNavigation( year, null )}
+              href={getValidRoute( year, null )}
             />
           </li>
         ) )}
@@ -149,9 +145,9 @@ export default function SeasonNavButtonRow( {
           >
             <SeasonButton
               label={info.suffix}
-              selected={info.href === currSeasonSuffix?.href}
-              onClick={() => handleSeasonSuffixChange( info )}
-              href={info.href}
+              selected={currSeasonSuffix?.suffix === info.suffix}
+              onClick={() => handleNavigation( null, info )}
+              href={getValidRoute( null, info.suffix )}
             />
           </li>
         ) )}

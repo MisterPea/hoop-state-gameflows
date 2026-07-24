@@ -61,7 +61,11 @@ test("browser back after switching segments lands cleanly, no push/resync loop",
   // A single toHaveURL assertion isn't a reliable check here: it auto-retries
   // and can land on a poll where the oscillating URL happens to match, even
   // though it flips away again immediately after. Count navigations instead —
-  // a clean back-nav fires exactly one, a looping one fires many.
+  // but Next.js itself fires a benign second framenavigated event on any hard
+  // navigation (goto, back/forward): a history.replaceState housekeeping call
+  // that re-lands on the exact same path (trailing-slash normalization) and
+  // has nothing to do with our nav component. Dedupe by canonical path so
+  // that's tolerated, and only fail on an actual bounce to a *different* URL.
   const urlsAfterBack: string[] = [];
   page.on("framenavigated", (frame) => {
     if (frame === page.mainFrame()) urlsAfterBack.push(frame.url());
@@ -70,13 +74,22 @@ test("browser back after switching segments lands cleanly, no push/resync loop",
   await page.goBack();
   await page.waitForTimeout(1000);
 
-  expect(urlsAfterBack.length).toBeLessThanOrEqual(1);
+  const distinctUrlsAfterBack = new Set(urlsAfterBack.map((url) => url.replace(/\/$/, "")));
+  expect(distinctUrlsAfterBack.size).toBeLessThanOrEqual(1);
   expect(page.url()).toMatch(new RegExp(`/seasons/${FIXTURE_SEGMENT}/?$`));
 
-  const selectedHref = await nav
+  // Both the year button and the suffix button resolve to the same href
+  // when the selected year matches the active season, so >1 element can
+  // legitimately be aria-pressed at once now that year buttons also carry
+  // a real href (needed for hover-preload). Assert they all agree instead
+  // of assuming a single match.
+  const selectedHrefs = await nav
     .locator(`[data-href][aria-pressed="true"]`)
-    .getAttribute("data-href");
-  expect(selectedHref).toBe(`/seasons/${FIXTURE_SEGMENT}`);
+    .evaluateAll((buttons) => buttons.map((b) => b.getAttribute("data-href")));
+  expect(selectedHrefs.length).toBeGreaterThan(0);
+  for (const href of selectedHrefs) {
+    expect(href).toBe(`/seasons/${FIXTURE_SEGMENT}`);
+  }
 });
 
 test("unknown season segment renders not-found page", async ({ page }) => {

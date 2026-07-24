@@ -9,6 +9,7 @@ const meta = {
     label: "2025-26 Playoffs",
     selected: false,
     onClick: () => {},
+    href: "/seasons/2025-26-playoffs",
   },
 } satisfies Meta<typeof SeasonNavButton>;
 
@@ -17,3 +18,9 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
+
+export const Selected: Story = {
+  args: {
+    selected: true,
+  },
+};
