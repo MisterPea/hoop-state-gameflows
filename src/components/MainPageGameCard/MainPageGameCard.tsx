@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import styles from './MainPageGameCard.module.scss';
+import { useRef, useEffect } from 'react';
 
 
 type GameCardProps = {
@@ -21,10 +24,6 @@ type GameCardProps = {
   gameSubLabel: string | null;
 };
 
-// function formatTeamName( team: string, seed?: number | null ) {
-//   return seed ? `${team} (${<span>seed</span>})` : team;
-// }
-
 export default function MainPageGameCard( props: GameCardProps ) {
   const {
     awayPoints, awayTeam, awayTricode, awaySeed, awayWins, awayLosses,
@@ -40,13 +39,46 @@ export default function MainPageGameCard( props: GameCardProps ) {
     lowerLabel = `${awayTricode}: ${awayWins}-${awayLosses} - ${homeTricode}: ${homeWins}-${homeLosses}`;
   }
 
+  const prefetchTimer = useRef<NodeJS.Timeout>( null );
+  const PREFETCH_MS = 250;
+  const gameUrl = `/games/${gameId}`;
+
+  // router.prefetch() only warms Next's in-memory RSC cache for a same-tab
+  // soft nav — useless here since target="_blank" always forces a hard
+  // navigation in a fresh tab. A native <link rel="prefetch"> hits the
+  // browser's HTTP cache instead, which the new tab's request can reuse.
+  function addPrefetchLink( href: string ) {
+    if ( document.head.querySelector( `link[rel="prefetch"][href="${href}"]` ) ) return;
+    const link = document.createElement( 'link' );
+    link.rel = 'prefetch';
+    link.href = href;
+    document.head.appendChild( link );
+  }
+
+  function handlePrefetchTimer() {
+    prefetchTimer.current = setTimeout( () => {
+      addPrefetchLink( gameUrl );
+    }, PREFETCH_MS );
+  }
+
+  function removePrefetchTimer() {
+    if ( prefetchTimer.current ) {
+      clearTimeout( prefetchTimer.current );
+      prefetchTimer.current = null;
+    }
+  }
+
+  useEffect( () => removePrefetchTimer, [] );
+
   const homeWin = homePoints > awayPoints;
   return (
     <Link
       className={`${styles.gameCard}`}
-      href={`/games/${gameId}`}
+      href={gameUrl}
       target="_blank"
       prefetch={false}
+      onMouseEnter={handlePrefetchTimer}
+      onMouseLeave={removePrefetchTimer}
     >
       <div className={styles.teamCard}>
         <div className={styles.teamHolder}>

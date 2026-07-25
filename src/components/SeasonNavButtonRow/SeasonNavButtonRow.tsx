@@ -67,9 +67,11 @@ export default function SeasonNavButtonRow( {
     let nextRoute = pathname;
     if ( currSeasonSuffix ) nextRoute = `/seasons/${seasonYear}-${currSeasonSuffix.suffix.replaceAll( ' ', '-' ).toLowerCase()}`;
 
-    // Get valid route and push new route
-    nextRoute = getValidRoute( seasonYear, currSeasonSuffix?.suffix || null );
-    router.push( nextRoute );
+    if ( nextRoute !== normalizedPathname ) {
+      // Get valid route and push new route
+      nextRoute = getValidRoute( seasonYear, currSeasonSuffix?.suffix || null );
+      router.push( nextRoute );
+    }
 
   }, [currSeasonSuffix?.href, seasonYear] );
 
@@ -78,9 +80,16 @@ export default function SeasonNavButtonRow( {
   useEffect( () => {
     // derive route from url
     const year = pathname.slice( 9, 16 );
-    const suffix = seasons[year].filter( ( { href } ) => href === normalizedPathname )[0];
-    setSeasonYear( year );
-    setCurrSeasonSuffix( suffix );
+    const suffix = seasons[year]?.filter( ( { href } ) => href === normalizedPathname )[0];
+
+    // Guard against redundant sets: this effect also fires for pathname
+    // changes caused by our own router.push below (effect 1). .filter()
+    // always returns a fresh object, so without this check we'd re-render
+    // with a new-but-equal currSeasonSuffix on every push — a mid-navigation
+    // re-render that's invisible on the dev server but can knock the static-
+    // export prod site off a soft nav into a full page reload.
+    if ( year !== seasonYear ) setSeasonYear( year );
+    if ( suffix?.href !== currSeasonSuffix?.href ) setCurrSeasonSuffix( suffix );
 
     selectedRef.current?.scrollIntoView( {
       behavior: "smooth",

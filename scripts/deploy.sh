@@ -71,12 +71,26 @@ npm run build
 echo "==> E2E (playwright, against the just-built out/)"
 CI=true npx playwright test
 
-echo "==> Uploading out/ to s3://$S3_BUCKET"
+echo "==> Uploading immutable static assets to s3://$S3_BUCKET/_next/static/"
+# Chunk filenames are content-hashed, so every build's out/_next/static is a
+# disjoint set of new filenames — a --delete sync here would remove the prior
+# build's chunks the instant the new ones land. A tab still on the old build
+# (open pre-deploy, or served a stale edge copy mid CloudFront-invalidation)
+# then 404s on its next chunk request -> ChunkLoadError / forced reload.
+# Content-hashed assets are immutable and cheap to keep around, so upload-only
+# here (no --delete) and let old chunks accumulate; prune them separately on
+# a delay if the bucket needs tidying.
+aws s3 sync out/_next/static/ "s3://$S3_BUCKET/_next/static/" --size-only "${AWS_ARGS[@]}"
+
+echo "==> Uploading out/ to s3://$S3_BUCKET (pruning stale pages)"
 # --size-only: every build gives every output file a fresh mtime, so plain
 # `s3 sync` (size+mtime) would re-PUT the whole site on every deploy even
 # when content is unchanged. Compare by size instead so untouched pages are
 # skipped. Tradeoff: a same-size content change (rare) won't be re-uploaded.
-aws s3 sync out/ "s3://$S3_BUCKET" --delete --size-only "${AWS_ARGS[@]}"
+# --exclude _next/static: already synced above without --delete; excluding it
+# here keeps this pass's --delete from removing older builds' chunks while
+# still pruning stale HTML/other pages that no longer exist in out/.
+aws s3 sync out/ "s3://$S3_BUCKET" --delete --size-only --exclude "_next/static/*" "${AWS_ARGS[@]}"
 
 echo "==> Invalidating CloudFront distribution $CLOUDFRONT_DISTRIBUTION_ID"
 aws cloudfront create-invalidation \
