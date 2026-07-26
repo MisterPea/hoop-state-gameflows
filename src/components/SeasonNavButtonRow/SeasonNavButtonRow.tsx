@@ -62,8 +62,20 @@ export default function SeasonNavButtonRow( {
   const [currSeasonSuffix, setCurrSeasonSuffix] = useState<SeasonInfo | undefined>( defaultSuffix );
   const seasonSuffixes = seasons[seasonYear] ?? [];
 
+  // Only handleNavigation (an actual button click) may cause a push. Without
+  // this flag, a browser back/forward navigation resyncs local state from the
+  // URL (effect below), which changes currSeasonSuffix/seasonYear and used to
+  // make *this* effect fire on the next render — but pathname there had
+  // already moved on to the back-navigated URL while this effect's own
+  // nextRoute was still built from the not-yet-resynced state, so it read as
+  // a mismatch and pushed the URL right back to where the user came from.
+  const isUserActionRef = useRef( false );
+
   // This captures button presses and advances the route (does not capture back/forward browser clicks)
   useEffect( () => {
+    if ( !isUserActionRef.current ) return;
+    isUserActionRef.current = false;
+
     let nextRoute = pathname;
     if ( currSeasonSuffix ) nextRoute = `/seasons/${seasonYear}-${currSeasonSuffix.suffix.replaceAll( ' ', '-' ).toLowerCase()}`;
 
@@ -99,6 +111,7 @@ export default function SeasonNavButtonRow( {
   }, [pathname] );
 
   function handleNavigation( year: string | null, suffixObj: SeasonInfo | null ) {
+    isUserActionRef.current = true;
     if ( year ) setSeasonYear( year );
     if ( suffixObj ) setCurrSeasonSuffix( suffixObj );
   }
