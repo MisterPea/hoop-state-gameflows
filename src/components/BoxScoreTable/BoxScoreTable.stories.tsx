@@ -40,7 +40,7 @@ function player( overrides: Partial<BoxScorePlayer> & Pick<BoxScorePlayer, "pers
 }
 
 const meta = {
-  title: "Components/Game/BoxScoreTable",
+  title: "Per Game Components/Box Score",
   component: BoxScoreTable,
   tags: ["autodocs"],
   parameters: {

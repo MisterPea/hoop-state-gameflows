@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import SeasonNavButtonRow from "./SeasonNavButtonRow";
 
 const meta = {
-  title: "Components/Seasons/SeasonNavButtonRow",
+  title: "Per Season Components/Season Nav Button Row",
   component: SeasonNavButtonRow,
   tags: ["autodocs"],
   args: {

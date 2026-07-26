@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import GameCompareAttemptMadeBar from "./GameCompareAttemptMadeBar";
 
 const meta = {
-  title: "Components/Game/GameCompareAttemptMadeBar",
+  title: "Per Game Components/Attempts Made Bar Group",
   component: GameCompareAttemptMadeBar,
   tags: ["autodocs"],
   argTypes: {

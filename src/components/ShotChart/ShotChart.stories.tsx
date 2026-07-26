@@ -161,9 +161,16 @@ const shots: ShotChartPoint[] = [
 ];
 
 const meta = {
-  title: "Components/Game/ShotChart",
+  title: "Per Game Components/Shot Chart",
   component: ShotChart,
   tags: ["autodocs"],
+  decorators: [
+    ( Story ) => (
+      <div>
+        <Story />
+      </div>
+    )
+  ],
   args: {
     teamName: "Boston Celtics",
     shots,
@@ -178,12 +185,12 @@ export const Default: Story = {};
 
 export const HotShooting: Story = {
   args: {
-    shots: shots.map((shot) => ({ ...shot, made: true })),
+    shots: shots.map( ( shot ) => ( { ...shot, made: true } ) ),
   },
 };
 
 export const ColdShooting: Story = {
   args: {
-    shots: shots.map((shot) => ({ ...shot, made: false })),
+    shots: shots.map( ( shot ) => ( { ...shot, made: false } ) ),
   },
 };

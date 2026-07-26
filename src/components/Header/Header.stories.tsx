@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Header from "./Header";
 
 const meta = {
-  title: "Components/Main/Header",
+  title: "Per Page Components/Header",
   component: Header,
   tags: ["autodocs"],
   parameters: {
@@ -24,10 +24,10 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const GamePage: Story = {};
-
 export const MainPage: Story = {
   args: {
     isGamePage: false,
   },
 };
+export const GamePage: Story = {};
+

@@ -19,11 +19,11 @@ const bench = [
 ];
 
 const meta = {
-  title: "Components/Game/LineupBar",
+  title: "Per Game Components/LineupBar",
   component: LineupBar,
   tags: ["autodocs"],
   decorators: [
-    (Story) => (
+    ( Story ) => (
       <div style={{ padding: "100px 20px 20px" }}>
         <Story />
       </div>

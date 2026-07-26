@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import GameSectionWrapper from "./GameSectionWrapper";
 
 const meta = {
-  title: "Components/Game/GameSectionWrapper",
+  title: "Per Game Components/Section Wrapper",
   component: GameSectionWrapper,
   tags: ["autodocs"],
   args: {

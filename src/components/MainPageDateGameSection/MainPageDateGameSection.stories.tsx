@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import MainPageDateGameSection from "./MainPageDateGameSection";
 
 const meta = {
-  title: "Components/Seasons/MainPageDateGameSection",
+  title: "Per Season Components/Game Card Date Wrapper",
   component: MainPageDateGameSection,
   tags: ["autodocs"],
   args: {
