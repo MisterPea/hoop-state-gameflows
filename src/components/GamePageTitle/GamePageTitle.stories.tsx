@@ -9,8 +9,10 @@ const meta = {
   args: {
     awayTeam: "Detroit",
     awayScore: 115,
+    awayTricode: "DET",
     homeTeam: "Cleveland",
     homeScore: 94,
+    homeTricode: "CLE",
   },
 } satisfies Meta<typeof GamePageTitle>;
 

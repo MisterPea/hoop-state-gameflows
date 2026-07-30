@@ -4,8 +4,9 @@
   margin: 10px 0;
   padding: clamp(0px, 1vw, 10px);
   border: 1px solid var(--season-not-selected-background);
-  background-color: #ffffff;
+  background-color: #ffffff20;
   border-radius: 2px;
+  min-width: 0;
   &:last-child {
     margin-bottom: unset;
   }
@@ -13,15 +14,29 @@
     font-weight: 600;
     font-size: var(--font-size-subhead);
     color: var(--foreground);
-    margin: 0 2px 5px;
-    opacity: 0.8;
+    margin: 0 2px 8px;
   }
 }
 
+// Column count tracks the real game count for that date (capped per
+// breakpoint) so the grid never carries empty tracks next to a card.
+// The outer .gameDateSection's grid-column span (set inline, since it can
+// be inflated by lookahead packing) controls how wide those tracks render.
 .gameDateSectionUl {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
   gap: clamp(0px, 1vw, 10px);
+}
+
+.countOne {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+.countTwo {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.countThreePlus {
+  grid-template-columns: repeat(2, 1fr);
   @include tablet-up {
     grid-template-columns: repeat(3, 1fr);
   }

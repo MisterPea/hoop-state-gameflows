@@ -1,5 +1,9 @@
 .gameTitle {
   h1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35em;
     font-size: 2rem;
     letter-spacing: -0.02em;
     font-weight: 600;
@@ -11,10 +15,21 @@
 }
 
 .teamUnit {
+  display: inline-flex;
+  align-items: center;
+  // gap: 0.3em;
   white-space: nowrap;
 }
 
+.logo {
+  height: 1.3em;
+  width: auto;
+  flex: none;
+  margin-right: 0.125em;
+}
+
 .score {
+  margin-left: 0.25em;
   font-weight: 400;
   color: var(--card-h4-color);
 }

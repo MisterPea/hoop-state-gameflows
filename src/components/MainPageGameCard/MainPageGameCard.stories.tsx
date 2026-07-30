@@ -9,10 +9,12 @@ const meta = {
   args: {
     awayPoints: 110,
     awayTeam: 'Atlanta',
+    awayTricode: 'ATL',
     gameDate: '2025-10-29',
     gameId: '0022500130',
     homePoints: 112,
     homeTeam: 'Brooklyn',
+    homeTricode: 'BKN',
     gameLabel: null,
     gameSubLabel: null
   },
@@ -28,10 +30,12 @@ export const AwayWin: Story = {
   args: {
     awayPoints: 122,
     awayTeam: 'Phoenix',
+    awayTricode: 'PHX',
     gameDate: '2025-10-24',
     gameId: '0022500099',
     homePoints: 109,
     homeTeam: 'LA Clippers',
+    homeTricode: 'LAC',
     gameLabel: null,
     gameSubLabel: null
   },
@@ -40,11 +44,13 @@ export const AwayWin: Story = {
 export const SingleLabel: Story = {
   args: {
     awayPoints: 122,
-    awayTeam: 'Phoenix',
+    awayTeam: "Houston",
+    awayTricode: 'HOU',
     gameDate: '2025-10-24',
     gameId: '0022500099',
     homePoints: 109,
     homeTeam: 'LA Clippers',
+    homeTricode: 'LAC',
     gameLabel: 'AWS NBA Rivals Week',
     gameSubLabel: null
   },
@@ -73,11 +79,13 @@ export const PlayIn: Story = {
   args: {
     awayPoints: 114,
     awayTeam: 'Portland',
+    awayTricode: 'POR',
     awaySeed: 8,
     gameDate: '2026-04-14',
     gameId: '0052500121',
     homePoints: 110,
     homeTeam: 'Phoenix',
+    homeTricode: 'PHX',
     homeSeed: 7,
     gameLabel: 'SoFi Play-In Tournament',
     gameSubLabel: 'West'

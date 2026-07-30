@@ -66,6 +66,8 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
             homeScore={summary.homePoints}
             awayTeam={summary.awayTeam}
             awayScore={summary.awayPoints}
+            homeTricode={homeTricode}
+            awayTricode={awayTricode}
           />
           <div className={styles.dateGameIdRow}>
             <GamePageTitleInfo

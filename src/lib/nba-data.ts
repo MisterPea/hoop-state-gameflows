@@ -375,6 +375,7 @@ export async function getAllGameIds() {
     `
       SELECT DISTINCT game_id
       FROM games
+      WHERE game_category IN ('regular_season', 'nba_cup', 'nba_cup_final', 'play_in', 'playoffs', 'finals')
       ORDER BY game_id DESC
     `,
   ) ) as Array<{ game_id: string; }>;

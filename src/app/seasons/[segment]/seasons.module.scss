@@ -1,5 +1,19 @@
+@use "../../../styles/mixins" as *;
+
 .numGamesHeader {
   margin: 0;
   font-weight: 500;
   padding: 5px 0 10px;
+  @include tablet-up {
+    grid-column: 1 / -1;
+  }
+}
+
+.gamesWrapper {
+  @include tablet-up {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    gap: 10px;
+  }
 }
