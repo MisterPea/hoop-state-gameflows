@@ -72,9 +72,7 @@
 .missedBar {
   border-top-right-radius: 2px;
   border-bottom-right-radius: 2px;
-  border-top: 2px dashed red;
-  border-right: 2px dashed red;
-  border-bottom: 2px dashed red;
+  background-color: color-mix(in srgb, var(--foreground) 10%, transparent);
 }
 
 .includeMissed {

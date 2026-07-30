@@ -1,8 +1,9 @@
 .sectionSelector {
   white-space: nowrap;
   font-size: var(--font-size-subhead);
-  padding: 5px 10px;
+  padding: 5px 11px;
   font-weight: 400;
+  border-radius: 6px;
   background-color: var(--season-not-selected-background);
   color: var(--season-not-selected-foreground);
   &.sectionIsSelected {

@@ -80,7 +80,12 @@ echo "==> Uploading immutable static assets to s3://$S3_BUCKET/_next/static/"
 # Content-hashed assets are immutable and cheap to keep around, so upload-only
 # here (no --delete) and let old chunks accumulate; prune them separately on
 # a delay if the bucket needs tidying.
-aws s3 sync out/_next/static/ "s3://$S3_BUCKET/_next/static/" --size-only "${AWS_ARGS[@]}"
+# --cache-control: filenames are content-hashed, so a year-long immutable
+# cache is safe — a code change always ships under a new filename. Without
+# this, S3 sends no Cache-Control header and browsers fall back to weak
+# heuristic caching (Lighthouse "efficient cache lifetimes").
+aws s3 sync out/_next/static/ "s3://$S3_BUCKET/_next/static/" --size-only \
+  --cache-control "public, max-age=31536000, immutable" "${AWS_ARGS[@]}"
 
 echo "==> Uploading out/ to s3://$S3_BUCKET (pruning stale pages)"
 # --size-only: every build gives every output file a fresh mtime, so plain
@@ -90,7 +95,13 @@ echo "==> Uploading out/ to s3://$S3_BUCKET (pruning stale pages)"
 # --exclude _next/static: already synced above without --delete; excluding it
 # here keeps this pass's --delete from removing older builds' chunks while
 # still pruning stale HTML/other pages that no longer exist in out/.
-aws s3 sync out/ "s3://$S3_BUCKET" --delete --size-only --exclude "_next/static/*" "${AWS_ARGS[@]}"
+# --cache-control: these filenames are NOT hashed (HTML pages, favicon,
+# manifest, fonts in public/), so a long max-age would stick a stale page/asset
+# in front of returning visitors after a deploy. must-revalidate lets
+# CloudFront/browser cache the bytes but forces a conditional check
+# (304 on no change) before ever serving a cached copy as fresh.
+aws s3 sync out/ "s3://$S3_BUCKET" --delete --size-only --exclude "_next/static/*" \
+  --cache-control "public, max-age=0, must-revalidate" "${AWS_ARGS[@]}"
 
 echo "==> Invalidating CloudFront distribution $CLOUDFRONT_DISTRIBUTION_ID"
 aws cloudfront create-invalidation \
