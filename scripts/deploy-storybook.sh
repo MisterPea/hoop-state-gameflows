@@ -66,5 +66,11 @@ npm run build-storybook
 echo "==> Uploading storybook-static/ to s3://$STORYBOOK_S3_BUCKET"
 aws s3 sync storybook-static/ "s3://$STORYBOOK_S3_BUCKET" --delete "${AWS_ARGS[@]}"
 
+echo "==> Invalidating CloudFront distribution $STORYBOOK_CLOUDFRONT_DISTRIBUTION_ID"
+aws cloudfront create-invalidation \
+  --distribution-id "$STORYBOOK_CLOUDFRONT_DISTRIBUTION_ID" \
+  --paths "/*" \
+  "${AWS_ARGS[@]}"
+
 echo
-echo "Deploy complete: $GIT_REF -> s3://$STORYBOOK_S3_BUCKET"
+echo "Deploy complete: $GIT_REF -> s3://$STORYBOOK_S3_BUCKET. (CloudFront invalidated)"

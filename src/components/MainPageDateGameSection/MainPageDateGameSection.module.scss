@@ -3,12 +3,17 @@
 .gameDateSection {
   margin: 10px 0;
   padding: clamp(0px, 1vw, 10px);
-  border: 1px solid var(--season-not-selected-background);
+  padding-top: clamp(5px, 2.5vw, 10px);;
+  border-top: 1px solid var(--season-not-selected-background);
   background-color: #ffffff20;
   border-radius: 2px;
   min-width: 0;
   &:last-child {
     margin-bottom: unset;
+  }
+  @include tablet-up {
+    padding: clamp(0px, 1vw, 10px);
+    border: 1px solid var(--season-not-selected-background);
   }
   .dateTitle {
     font-weight: 600;

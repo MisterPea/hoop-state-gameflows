@@ -4,9 +4,11 @@ import { useState } from "react";
 import type { ShotChartPoint, ShotZone } from "@/lib/nba-data";
 import styles from "./ShotChart.module.scss";
 import AttemptMadeBarRow from "../AttemptMadeBarRow/AttemptMadeBarRow";
+import { Logo, type TeamLogoCode } from "@/lib/team-logos";
 
 type ShotChartProps = {
   teamName: string;
+  tricode: TeamLogoCode;
   shots: ShotChartPoint[];
 };
 
@@ -108,7 +110,7 @@ function CourtSvg( { shots, onHoverShot, onLeaveShot }: CourtSvgProps ) {
   );
 }
 
-export default function ShotChart( { teamName, shots }: ShotChartProps ) {
+export default function ShotChart( { teamName, tricode, shots }: ShotChartProps ) {
   const [zone, setZone] = useState<ShotZone | "all">( "all" );
 
   let shotInfoEl: HTMLParagraphElement | null = null;
@@ -128,7 +130,10 @@ export default function ShotChart( { teamName, shots }: ShotChartProps ) {
   return (
     <div className={styles.shotChart}>
       <header className={styles.shotChartHeader}>
-        <h3 className={styles.teamName}>{teamName}</h3>
+        <h3 className={styles.teamName}>
+          <Logo tricode={tricode} className={styles.teamLogo} />
+          {teamName}
+        </h3>
         <AttemptMadeBarRow
           className={styles.attemptBarFill}
           attempts={visibleShots.length}

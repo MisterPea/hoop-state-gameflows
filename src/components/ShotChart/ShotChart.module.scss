@@ -17,8 +17,16 @@
 }
 
 .teamName {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
   font-weight: 600;
   font-size: var(--font-size-larger);
+}
+
+.teamLogo {
+  height: 1.1em;
+  width: auto;
 }
 
 .shotInfo {

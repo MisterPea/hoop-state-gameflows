@@ -103,7 +103,7 @@ thead .playerCol {
   font-style: italic;
   color: var(--card-h4-color);
   font-weight: 400;
-  font-size: clamp(0.6rem, 1.5vw, 0.75rem);
+  font-size: clamp(0.4rem, 1vw, 0.75rem);
   @include tablet-up {
     font-size: unset;
   }

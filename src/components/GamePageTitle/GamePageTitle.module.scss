@@ -1,12 +1,18 @@
+@use "../../styles/mixins" as *;
+
 .gameTitle {
   h1 {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.35em;
-    font-size: 2rem;
+    column-gap: 0.35em;
+    row-gap: 0.2em;
+    font-size: 1.75rem;
     letter-spacing: -0.02em;
     font-weight: 600;
+    @include tablet-up {
+      font-size: 2rem;
+    }
   }
   .atSpan {
     font-weight: 400;

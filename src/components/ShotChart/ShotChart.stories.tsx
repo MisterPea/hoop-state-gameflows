@@ -173,6 +173,7 @@ const meta = {
   ],
   args: {
     teamName: "Boston Celtics",
+    tricode: "BOS",
     shots,
   },
 } satisfies Meta<typeof ShotChart>;

@@ -25,6 +25,7 @@ import GameSectionWrapper from "@/components/GameSectionWrapper/GameSectionWrapp
 import GameCompareAttemptMadeBar from "@/components/GameCompareAttemptMadeBar/GameCompareAttemptMadeBar";
 import ShotChart from "@/components/ShotChart/ShotChart";
 import { formatGameDate } from "@/lib/format-date";
+import type { TeamLogoCode } from "@/lib/team-logos";
 
 export const runtime = "nodejs";
 export const dynamicParams = false;
@@ -279,8 +280,8 @@ export default async function GamePage( props: PageProps<"/games/[gameId]"> ) {
         </GameSectionWrapper>
         <GameSectionWrapper title="Shot Chart" className={styles.sectionWrapper}>
           <div className={styles.shotChartGrid}>
-            <ShotChart teamName={getTeamName( awayTricode )} shots={shotChart.away} />
-            <ShotChart teamName={getTeamName( homeTricode )} shots={shotChart.home} />
+            <ShotChart teamName={getTeamName( awayTricode )} tricode={awayTricode as TeamLogoCode} shots={shotChart.away} />
+            <ShotChart teamName={getTeamName( homeTricode )} tricode={homeTricode as TeamLogoCode} shots={shotChart.home} />
           </div>
         </GameSectionWrapper>
       </section>

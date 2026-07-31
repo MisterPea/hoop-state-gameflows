@@ -3521,7 +3521,11 @@ export type TeamLogoCode = keyof typeof teamLogos;
 
 type LogoProps = SVGProps<SVGSVGElement> & { tricode: TeamLogoCode; };
 
-export function Logo( { tricode, ...props }: LogoProps ) {
+export function Logo( { tricode, style, ...props }: LogoProps ) {
   const TeamLogo = teamLogos[tricode];
-  return <TeamLogo {...props} />;
+  // Safari fails to derive intrinsic width from viewBox when width:auto,
+  // height:100% is used in a flex context (svgs here carry no width/height
+  // attrs) - collapses to 0 width. Explicit CSS aspect-ratio sidesteps it.
+  const aspectRatio = tricode === 'HOU' ? '151 / 200' : '1 / 1';
+  return <TeamLogo style={{ aspectRatio, ...style }} {...props} />;
 }
