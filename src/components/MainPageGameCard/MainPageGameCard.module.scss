@@ -101,18 +101,21 @@
 }
 
 .teamRow {
-  display: grid;
-  grid-template-columns: auto 3fr 1fr;
-  column-gap: 0.7rem;
+  display: flex;
+  align-items: center;
+  column-gap: 0.5rem;
   .teamName {
-    width: fit-content;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .logoHolder {
-    display: flex;
-    align-items: center;
+    flex-shrink: 0;
     height: 1.5em;
     width: auto;
-    svg {
+    img {
       height: 100%;
       width: auto;
     }
@@ -120,9 +123,7 @@
 }
 
 .teamPoints {
-  justify-self: flex-end;
-  display: flex;
-  align-items: center;
+  flex-shrink: 0;
 }
 
 .gameWinner {

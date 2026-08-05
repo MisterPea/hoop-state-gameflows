@@ -4,6 +4,7 @@ import Link from 'next/link';
 import styles from './MainPageGameCard.module.scss';
 import { useRef, useEffect } from 'react';
 import { Logo, type TeamLogoCode } from '../../lib/team-logos';
+import TeamLogo from '../TeamLogo/TeamLogo';
 
 
 type GameCardProps = {
@@ -84,14 +85,14 @@ export default function MainPageGameCard( props: GameCardProps ) {
         <div className={styles.teamHolder}>
           <div className={`${styles.teamRow} ${!homeWin && styles.gameWinner}`}>
             <div className={styles.logoHolder}>
-              {awayTricode && <Logo tricode={awayTricode as TeamLogoCode} />}
+              {awayTricode && <TeamLogo tricode={awayTricode} teamName="" />}
             </div>
             <h3 className={styles.teamName}>{awayTeam}{awaySeed && <span className={styles.seeding}>{` (${awaySeed})`}</span>}</h3>
             <h4 className={styles.teamPoints}>{awayPoints}<span className={styles.winArrow}>◀</span></h4>
           </div>
           <div className={`${styles.teamRow} ${homeWin && styles.gameWinner}`}>
             <div className={styles.logoHolder}>
-              {homeTricode && <Logo tricode={homeTricode as TeamLogoCode} />}
+              {homeTricode && <TeamLogo tricode={homeTricode} teamName="" />}
             </div>
             <h3 className={styles.teamName}>{homeTeam}{homeSeed && <span className={styles.seeding}>{` (${homeSeed})`}</span>}</h3>
             <h4 className={styles.teamPoints}>{homePoints}<span className={styles.winArrow}>◀</span></h4>
