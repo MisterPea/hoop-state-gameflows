@@ -21,6 +21,9 @@
 /.next/
 /out/
 
+# generated season json (regenerated every build/dev start)
+/public/data/
+
 # production
 /build
 
