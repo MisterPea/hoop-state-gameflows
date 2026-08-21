@@ -8,9 +8,11 @@
   },
   "scripts": {
     "check:node": "node ./scripts/check-node-version.mjs",
-    "predev": "node ./scripts/check-node-version.mjs",
+    "generate:season-json": "node --conditions=react-server ./scripts/generate-season-json.mts",
+    "predev": "node ./scripts/check-node-version.mjs && npm run generate:season-json",
     "preinstall": "node ./scripts/check-node-version.mjs",
     "dev": "next dev",
+    "prebuild": "npm run generate:season-json",
     "build": "next build",
     "postbuild": "node ./scripts/prune-static-export.mjs",
     "start": "next start",
@@ -26,7 +28,8 @@
   },
   "dependencies": {
     "@misterpea/sqlite-worker-db": "^0.1.5",
-    "next": "16.2.9",
+    "@tanstack/react-virtual": "^3.14.10",
+    "next": "16.3.2",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
@@ -40,6 +43,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "sass": "^1.101.0",
     "serve": "^14.2.6",
+    "server-only": "^0.0.1",
     "storybook": "^10.4.6",
     "typescript": "^5",
     "vite": "^8.0.16"

@@ -1,16 +1,24 @@
 @use "../../styles/mixins" as *;
 
+// Absolutely-positioned virtual items are measured via
+// getBoundingClientRect(), which doesn't include margin — so the gap
+// between sections has to live here, as padding-bottom on the positioned
+// slot, rather than as margin (margin would silently desync the
+// virtualizer's stacking math). The visual card chrome (border/background)
+// lives on the nested .gameDateSectionCard instead, so that padding gap
+// stays outside the visible card rather than stretching it.
 .gameDateSection {
-  margin: 10px 0;
+  box-sizing: border-box;
+  padding-bottom: 10px;
+  min-width: 0;
+}
+
+.gameDateSectionCard {
   padding: 0px;
   padding-top: 5px;
   border-top: 1px solid var(--season-not-selected-background);
   background-color: #ffffff20;
   border-radius: 2px;
-  min-width: 0;
-  &:last-child {
-    margin-bottom: unset;
-  }
   @include tablet-up {
     padding: 10px;
     border: 1px solid var(--season-not-selected-background);
@@ -23,10 +31,6 @@
   }
 }
 
-// Column count tracks the real game count for that date (capped per
-// breakpoint) so the grid never carries empty tracks next to a card.
-// The outer .gameDateSection's grid-column span (set inline, since it can
-// be inflated by lookahead packing) controls how wide those tracks render.
 .gameDateSectionUl {
   display: grid;
   gap: clamp(0px, 1vw, 10px);

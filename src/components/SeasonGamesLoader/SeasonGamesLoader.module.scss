@@ -1,0 +1,13 @@
+@use "../../styles/mixins" as *;
+
+.numGamesHeader {
+  margin: 0;
+  font-weight: 500;
+  padding: 5px 0 10px;
+}
+
+.status {
+  margin: 0;
+  padding: 20px 0;
+  color: var(--foreground);
+}

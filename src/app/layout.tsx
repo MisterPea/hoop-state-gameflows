@@ -7,6 +7,7 @@ import "../styles/globals.scss";
 const SITE_DESCRIPTION = "In-depth visual breakdowns of NBA games — shot charts, lineups, and scoring trends.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://hoopstate.net"),
   title: "Hoop State Gameflows",
   description: SITE_DESCRIPTION,
   openGraph: {

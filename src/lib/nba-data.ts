@@ -284,6 +284,16 @@ function getDb() {
   return globalThis.__nbaGameFlowDb;
 }
 
+/**
+ * Gracefully closes the worker-threaded DB connection. Only needed by
+ * short-lived standalone scripts (e.g. generate-season-json) — the Next.js
+ * dev/build process holds the singleton open for its own lifetime.
+ */
+export async function shutdownDb(): Promise<void> {
+  await globalThis.__nbaGameFlowDb?.shutdown();
+  globalThis.__nbaGameFlowDb = undefined;
+}
+
 function mapGameSummary( row: GameSummaryRow ): GameSummary {
   return {
     gameId: row.game_id,

@@ -1,100 +1,127 @@
-import type { ConsolidatedGameSummary } from "@/lib/nba-data";
+"use client";
+
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { formatGameDate } from "@/lib/format-date";
-import styles from "./MainPageDateGameSection.module.scss";
+import type { ConsolidatedGameSummary } from "@/lib/nba-data";
 import MainPageGameCard from "../MainPageGameCard/MainPageGameCard";
+import styles from "./MainPageDateGameSection.module.scss";
 
 type Props = {
   gamesData: Record<string, ConsolidatedGameSummary[]>;
 };
 
-const ROW_WIDTH = 3;
+// Rough per-date section height used only to size the scrollbar/virtual
+// track before a section has actually been measured. measureElement
+// corrects it against the real rendered height once mounted, so this only
+// needs to be in the right ballpark to avoid a visible scroll-position jump.
+const CARD_HEIGHT_ESTIMATE = 100;
+const SECTION_CHROME_ESTIMATE = 70;
 
-type DateGroup = {
-  date: string;
-  games: ConsolidatedGameSummary[];
-  span: number;
-};
-
-// Lays dates out left-to-right, capping each at ROW_WIDTH card-widths.
-// Whenever a row can't be filled exactly (the next date doesn't fit the
-// remaining columns, or the list runs out), the leftover width is handed
-// to the last date placed in that row instead of left blank — so a lone
-// or lightly-loaded day stretches to fill the row rather than leaving
-// empty grid tracks next to it.
-function computeDateGroups( gamesData: Record<string, ConsolidatedGameSummary[]> ): DateGroup[] {
-  const groups: DateGroup[] = Object.entries( gamesData ).map( ( [date, games] ) => ( {
-    date,
-    games,
-    span: Math.min( games.length, ROW_WIDTH ),
-  } ) );
-
-  let rowRemaining = ROW_WIDTH;
-  let rowStart = 0;
-
-  const closeRow = ( endExclusive: number ) => {
-    if ( endExclusive === rowStart ) return;
-    if ( rowRemaining > 0 ) {
-      groups[endExclusive - 1].span += rowRemaining;
-    }
-    rowRemaining = ROW_WIDTH;
-    rowStart = endExclusive;
-  };
-
-  groups.forEach( ( group, i ) => {
-    if ( group.span > rowRemaining ) {
-      closeRow( i );
-    }
-    rowRemaining -= group.span;
-  } );
-  closeRow( groups.length );
-
-  return groups;
-}
-
-function columnCountClass( gameCount: number ) {
-  if ( gameCount <= 1 ) return styles.countOne;
-  if ( gameCount === 2 ) return styles.countTwo;
+function columnCountClass(gameCount: number) {
+  if (gameCount <= 1) return styles.countOne;
+  if (gameCount === 2) return styles.countTwo;
   return styles.countThreePlus;
 }
 
-export default function MainPageDateGameSection( { gamesData }: Props ) {
-  const dateGroups = computeDateGroups( gamesData );
+function estimateSectionHeight(gameCount: number) {
+  const cols = gameCount <= 1 ? 1 : gameCount === 2 ? 2 : 3;
+  const rows = Math.ceil(gameCount / cols);
+  return SECTION_CHROME_ESTIMATE + rows * CARD_HEIGHT_ESTIMATE;
+}
+
+export default function MainPageDateGameSection({ gamesData }: Props) {
+  // Opt out of React Compiler memoization for this component. It calls
+  // virtualizer.getVirtualItems()/getTotalSize() on every render — reads of
+  // a mutable external instance whose internal cache changes independent of
+  // any prop/state the compiler can see. The compiler doesn't know those
+  // calls are impure, so it can memoize the JSX referencing them keyed only
+  // on the (referentially stable) `virtualizer`/`dateEntries` values and
+  // freeze it at its first-render result, permanently pinning both the
+  // scroll-track height and the rendered window to whatever they were on
+  // mount.
+  "use no memo";
+
+  // TanStack Virtual's options-diffing needs these referentially stable
+  // across renders — a fresh array/closure each render (from re-deriving
+  // gamesData inline) desyncs its internal measurement cache from the
+  // total-size calculation, so this isn't a perf nicety the compiler can
+  // subsume, it's a correctness requirement of the library's API.
+  const dateEntries = useMemo(() => Object.entries(gamesData), [gamesData]);
+  const estimateSize = useCallback(
+    (index: number) => estimateSectionHeight(dateEntries[index][1].length),
+    [dateEntries],
+  );
+
+  const parentRef = useRef<HTMLDivElement>(null);
+  const [parentOffset, setParentOffset] = useState(0);
+
+  useLayoutEffect(() => {
+    setParentOffset(parentRef.current?.offsetTop ?? 0);
+  }, []);
+
+  const virtualizer = useWindowVirtualizer({
+    count: dateEntries.length,
+    estimateSize,
+    overscan: 4,
+    scrollMargin: parentOffset,
+  });
 
   return (
-    <>
-      {dateGroups.map( ( { date, games, span } ) => (
-        <section
-          key={date}
-          className={styles.gameDateSection}
-          style={{ gridColumn: `span ${span}` }}
-        >
-          <h3 className={`${styles.dateTitle}`}>{formatGameDate( date )}</h3>
-          <ul className={`${styles.gameDateSectionUl} ${columnCountClass( games.length )}`}>
-            {games.map( ( game ) => (
-              < li key={`${date}-${game.gameId}`} className={styles.gameDateSectionLi}>
-                <MainPageGameCard
-                  homeTeam={game.homeTeam}
-                  homeTricode={game.homeTricode}
-                  homePoints={game.homePoints}
-                  homeSeed={game.homeSeed}
-                  homeWins={game.homeWins}
-                  homeLosses={game.homeLosses}
-                  awayTeam={game.awayTeam}
-                  awayTricode={game.awayTricode}
-                  awayPoints={game.awayPoints}
-                  awaySeed={game.awaySeed}
-                  awayWins={game.awayWins}
-                  awayLosses={game.awayLosses}
-                  gameId={game.gameId}
-                  gameLabel={game.gameLabel}
-                  gameSubLabel={game.gameSubLabel}
-                />
-              </li>
-            ) )}
-          </ul>
-        </section >
-      ) )
-      }
-    </>
+    <div
+      ref={parentRef}
+      style={{ position: "relative", height: virtualizer.getTotalSize() }}
+    >
+      {virtualizer.getVirtualItems().map((virtualRow) => {
+        const [date, games] = dateEntries[virtualRow.index];
+        return (
+          <section
+            key={date}
+            ref={virtualizer.measureElement}
+            data-index={virtualRow.index}
+            className={styles.gameDateSection}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              transform: `translateY(${virtualRow.start - parentOffset}px)`,
+            }}
+          >
+            <div className={styles.gameDateSectionCard}>
+              <h3 className={`${styles.dateTitle}`}>{formatGameDate(date)}</h3>
+              <ul
+                className={`${styles.gameDateSectionUl} ${columnCountClass(games.length)}`}
+              >
+                {games.map((game) => (
+                  <li
+                    key={`${date}-${game.gameId}`}
+                    className={styles.gameDateSectionLi}
+                  >
+                    <MainPageGameCard
+                      homeTeam={game.homeTeam}
+                      homeTricode={game.homeTricode}
+                      homePoints={game.homePoints}
+                      homeSeed={game.homeSeed}
+                      homeWins={game.homeWins}
+                      homeLosses={game.homeLosses}
+                      awayTeam={game.awayTeam}
+                      awayTricode={game.awayTricode}
+                      awayPoints={game.awayPoints}
+                      awaySeed={game.awaySeed}
+                      awayWins={game.awayWins}
+                      awayLosses={game.awayLosses}
+                      gameId={game.gameId}
+                      gameLabel={game.gameLabel}
+                      gameSubLabel={game.gameSubLabel}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        );
+      })}
+    </div>
   );
 }
